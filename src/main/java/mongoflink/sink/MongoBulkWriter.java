@@ -82,9 +82,8 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
     @Override
     public List<DocumentBulk> prepareCommit(boolean flush) throws IOException {
-        if (flush && flushOnCheckpoint) {
-            rollBulkIfNeeded();
-            flush();
+        if (flushOnCheckpoint) {
+            rollBulkIfNeeded(true);
         }
         return pendingBulks;
     }
@@ -135,7 +134,10 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
     }
 
     private void rollBulkIfNeeded() {
-        if (currentBulk.isFull()) {
+        rollBulkIfNeeded(false);
+    }
+    private void rollBulkIfNeeded(boolean force) {
+        if (force || currentBulk.isFull()) {
             pendingBulks.add(currentBulk);
             currentBulk = new DocumentBulk(maxSize);
         }
