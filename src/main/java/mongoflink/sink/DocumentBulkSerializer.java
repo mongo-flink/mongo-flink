@@ -14,12 +14,13 @@ import org.bson.codecs.EncoderContext;
 import org.bson.io.BasicOutputBuffer;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 
 /**
  * Simple serializer for {@link DocumentBulk}.
  **/
-public class DocumentBulkSerializer implements SimpleVersionedSerializer<DocumentBulk> {
+public class DocumentBulkSerializer implements SimpleVersionedSerializer<DocumentBulk>, Serializable {
 
     private static final int MAGIC_NUMBER = 0x2f35a24b;
 

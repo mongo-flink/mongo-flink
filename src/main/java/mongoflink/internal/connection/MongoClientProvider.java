@@ -4,10 +4,12 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
+import java.io.Serializable;
+
 /**
  * Provided for initiate and recreate {@link MongoClient}.
  **/
-public interface MongoClientProvider {
+public interface MongoClientProvider extends Serializable {
 
     /**
      * Create one or get the current {@link MongoClient}.

@@ -1,9 +1,11 @@
 package mongoflink.config;
 
+import java.io.Serializable;
+
 /**
  * Configuration for {@link mongoflink.sink.MongoSink}.
  **/
-public class Configuration {
+public class Configuration implements Serializable {
 
     private boolean isTransactional;
 

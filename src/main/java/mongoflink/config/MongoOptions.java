@@ -1,9 +1,11 @@
 package mongoflink.config;
 
+import java.io.Serializable;
+
 /**
  * Config options for {@link mongoflink.sink.MongoSink}.
  **/
-public class MongoOptions {
+public class MongoOptions implements Serializable {
 
     public static final String TRANSACTION_ENABLED = "transaction.enable";
 

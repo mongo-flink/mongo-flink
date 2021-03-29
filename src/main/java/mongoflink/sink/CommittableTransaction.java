@@ -5,13 +5,14 @@ import com.mongodb.client.TransactionBody;
 import com.mongodb.client.result.InsertManyResult;
 import org.bson.Document;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * An simple implementation of Mongo transaction body.
  **/
-public class CommittableTransaction implements TransactionBody<Integer> {
+public class CommittableTransaction implements TransactionBody<Integer>, Serializable {
 
     private final MongoCollection<Document> collection;
 
