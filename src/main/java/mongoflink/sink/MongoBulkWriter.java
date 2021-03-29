@@ -90,9 +90,10 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
     @Override
     public List<DocumentBulk> snapshotState() throws IOException {
-        List<DocumentBulk> inProgressBulks = new ArrayList<>(1);
-        inProgressBulks.add(currentBulk);
-        return inProgressBulks;
+        List<DocumentBulk> inProgressAndPendingBulks = new ArrayList<>(1);
+        inProgressAndPendingBulks.add(currentBulk);
+        inProgressAndPendingBulks.addAll(pendingBulks);
+        return inProgressAndPendingBulks;
     }
 
     @Override
