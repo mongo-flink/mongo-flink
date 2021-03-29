@@ -63,7 +63,7 @@ public class MongoTransactionalSinkTest {
         env.setParallelism(1);
         env.getCheckpointConfig().setCheckpointInterval(1000L);
 
-        // if it's rows are not multiple times of rps, there would be the records remaining not flushed
+        // if these rows are not multiple times of rps, there would be the records remaining not flushed
         // after the last checkpoint
         long rps = 50;
         long rows = 1000L;
