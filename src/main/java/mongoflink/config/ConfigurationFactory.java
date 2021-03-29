@@ -11,7 +11,7 @@ public class ConfigurationFactory {
 
     public static Configuration fromProperties(Properties properties) {
         Configuration configuration = new Configuration();
-        configuration.setFlushOnCheckpoint(
+        configuration.setTransactional(
                 PropertiesUtil.getBoolean(properties, MongoOptions.TRANSACTION_ENABLED, false));
         configuration.setFlushOnCheckpoint(
                 PropertiesUtil.getBoolean(properties, MongoOptions.BULK_FLUSH_ON_CHECKPOINT, false));
