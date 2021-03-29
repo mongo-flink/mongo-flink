@@ -93,6 +93,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
         List<DocumentBulk> inProgressAndPendingBulks = new ArrayList<>(1);
         inProgressAndPendingBulks.add(currentBulk);
         inProgressAndPendingBulks.addAll(pendingBulks);
+        pendingBulks.clear();
         return inProgressAndPendingBulks;
     }
 
