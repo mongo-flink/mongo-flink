@@ -82,7 +82,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
     @Override
     public List<DocumentBulk> prepareCommit(boolean flush) throws IOException {
-        if (flushOnCheckpoint) {
+        if (flushOnCheckpoint || flush) {
             rollBulkIfNeeded(true);
         }
         return pendingBulks;
