@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Writer for MongoDB sink.
@@ -36,10 +37,11 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
     private DocumentSerializer<IN> serializer;
 
-    //TODO: implement time-based and size-based flush
     private transient ScheduledExecutorService scheduler;
 
     private transient ScheduledFuture scheduledFuture;
+
+    private transient volatile Exception flushException;
 
     private final long maxSize;
 
@@ -57,11 +59,29 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
         this.collectionProvider = collectionProvider;
         this.serializer = serializer;
         this.maxSize = configuration.getBulkFlushSize();
-        this.flushOnCheckpoint = configuration.isFlushOnCheckpoint();
         this.currentBulk = new DocumentBulk(maxSize);
-        this.scheduler =
-                Executors.newScheduledThreadPool(
-                        1, new ExecutorThreadFactory("mongodb-bulk-writer"));
+        this.flushOnCheckpoint = configuration.isFlushOnCheckpoint();
+        if (!flushOnCheckpoint) {
+            this.scheduler =
+                    Executors.newScheduledThreadPool(
+                            1, new ExecutorThreadFactory("mongodb-bulk-writer"));
+            this.scheduledFuture =
+                    scheduler.scheduleWithFixedDelay(
+                            () -> {
+                                synchronized (MongoBulkWriter.this) {
+                                    if (!closed) {
+                                        try {
+                                            flush();
+                                        } catch (Exception e) {
+                                            flushException = e;
+                                        }
+                                    }
+                                }
+                            },
+                            configuration.getBulkFlushTime(),
+                            configuration.getBulkFlushTime(),
+                            TimeUnit.MILLISECONDS);
+        }
     }
 
     public void initializeState(List<DocumentBulk> recoveredBulks) {
@@ -76,6 +96,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
     @Override
     public void write(IN o, Context context) throws IOException {
+        checkFlushException();
         rollBulkIfNeeded();
         currentBulk.add(serializer.serialize(o));
     }
@@ -100,6 +121,12 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
     @Override
     public void close() throws Exception {
         closed = true;
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(false);
+        }
+        if (scheduler != null) {
+            scheduler.shutdown();
+        }
     }
 
     /**
@@ -138,10 +165,17 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
     private void rollBulkIfNeeded() {
         rollBulkIfNeeded(false);
     }
+
     private void rollBulkIfNeeded(boolean force) {
         if (force || currentBulk.isFull()) {
             pendingBulks.add(currentBulk);
             currentBulk = new DocumentBulk(maxSize);
+        }
+    }
+
+    private void checkFlushException() throws IOException {
+        if (flushException != null) {
+            throw new IOException("Failed to flush records to MongoDB", flushException);
         }
     }
 
