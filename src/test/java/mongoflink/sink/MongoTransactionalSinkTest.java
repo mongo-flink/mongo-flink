@@ -1,15 +1,6 @@
 package mongoflink.sink;
 
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
-import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.MongodConfig;
-import de.flapdoodle.embed.mongo.config.Net;
-import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.process.runtime.Network;
 import mongoflink.config.MongoOptions;
 import mongoflink.serde.DocumentSerializer;
 import org.apache.flink.api.common.functions.RuntimeContext;
@@ -24,8 +15,6 @@ import org.apache.flink.streaming.api.functions.source.datagen.DataGeneratorSour
 import org.apache.flink.streaming.api.graph.StreamGraph;
 import org.bson.Document;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -33,29 +22,7 @@ import java.util.Random;
 
 import static org.junit.Assert.*;
 
-public class MongoTransactionalSinkTest {
-
-    private static final String HOST = "127.0.0.1";
-    private static final int PORT = 27018;
-    private static final String DATABASE_NAME = "bulkwrite";
-    private static final String COLLECTION = "transactional-4_0";
-    private static final String CONNECT_STRING = String.format("mongodb://%s:%d/%s", HOST, PORT, DATABASE_NAME);
-
-    private MongodExecutable mongodExe;
-    private MongodProcess mongod;
-    private MongoClient mongo;
-
-    @Before
-    public void before() throws Exception {
-        MongodStarter starter = MongodStarter.getDefaultInstance();
-        MongodConfig mongodConfig = MongodConfig.builder()
-                .version(Version.Main.V4_0)
-                .net(new Net(HOST, PORT, Network.localhostIsIPv6()))
-                .build();
-        this.mongodExe = starter.prepare(mongodConfig);
-        this.mongod = mongodExe.start();
-        this.mongo = MongoClients.create(CONNECT_STRING);
-    }
+public class MongoTransactionalSinkTest extends MongoSinkTestBase {
 
     @Test
     public void testWrite() throws Exception {
@@ -93,19 +60,6 @@ public class MongoTransactionalSinkTest {
 
         assertEquals(rows, mongo.getDatabase(DATABASE_NAME).getCollection(COLLECTION).countDocuments());
     }
-
-    @After
-    public void after() throws Exception {
-        if (this.mongo != null) {
-            mongo.getDatabase(DATABASE_NAME).getCollection(COLLECTION).drop();
-            mongo.close();
-        }
-        if (this.mongod != null) {
-            this.mongod.stop();
-            this.mongodExe.stop();
-        }
-    }
-
 }
 
 class StringDocumentSerializer implements DocumentSerializer<String> {
@@ -126,7 +80,6 @@ class StringGenerator implements DataGenerator<String> {
 
     @Override
     public void open(String s, FunctionInitializationContext functionInitializationContext, RuntimeContext runtimeContext) throws Exception {
-
     }
 
     @Override
