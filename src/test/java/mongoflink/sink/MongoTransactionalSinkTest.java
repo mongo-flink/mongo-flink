@@ -61,34 +61,3 @@ public class MongoTransactionalSinkTest extends MongoSinkTestBase {
         assertEquals(rows, mongo.getDatabase(DATABASE_NAME).getCollection(COLLECTION).countDocuments());
     }
 }
-
-class StringDocumentSerializer implements DocumentSerializer<String> {
-
-    @Override
-    public Document serialize(String string) {
-        Document document = new Document();
-        String[] elements = string.split(",");
-        document.append("word", elements[0]);
-        document.append("count", Integer.parseInt(elements[1]));
-        return document;
-    }
-}
-
-class StringGenerator implements DataGenerator<String> {
-
-    private int count;
-
-    @Override
-    public void open(String s, FunctionInitializationContext functionInitializationContext, RuntimeContext runtimeContext) throws Exception {
-    }
-
-    @Override
-    public boolean hasNext() {
-        return true;
-    }
-
-    @Override
-    public String next() {
-        return "key" + count++ + "," + new Random().nextInt();
-    }
-}
