@@ -13,8 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 
 /**
- * Author: Whitewood
- * CreateTime: 2021/4/12
+ * Base class for tests for MongoSink.
  **/
 public class MongoSinkTestBase {
 
