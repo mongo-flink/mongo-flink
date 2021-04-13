@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -71,6 +72,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
                                 synchronized (MongoBulkWriter.this) {
                                     if (!closed) {
                                         try {
+                                            rollBulkIfNeeded(true);
                                             flush();
                                         } catch (Exception e) {
                                             flushException = e;
@@ -137,12 +139,14 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
         if (!closed) {
             ensureConnection();
             retryPolicy.reset();
-            for (DocumentBulk bulk : pendingBulks) {
+            Iterator<DocumentBulk> iterator = pendingBulks.iterator();
+            while (iterator.hasNext()) {
+                DocumentBulk bulk = iterator.next();
                 do {
                     try {
                         // ordered, non-bypass mode
                         collection.insertMany(bulk.getDocuments());
-                        pendingBulks.remove(bulk);
+                        iterator.remove();
                         break;
                     } catch (MongoException e) {
                         // maybe partial failure
@@ -166,7 +170,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
         rollBulkIfNeeded(false);
     }
 
-    private void rollBulkIfNeeded(boolean force) {
+    private synchronized void rollBulkIfNeeded(boolean force) {
         if (force || currentBulk.isFull()) {
             pendingBulks.add(currentBulk);
             currentBulk = new DocumentBulk(maxSize);
