@@ -62,7 +62,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
         this.maxSize = configuration.getBulkFlushSize();
         this.currentBulk = new DocumentBulk(maxSize);
         this.flushOnCheckpoint = configuration.isFlushOnCheckpoint();
-        if (!flushOnCheckpoint) {
+        if (!flushOnCheckpoint && configuration.getBulkFlushInterval() > 0) {
             this.scheduler =
                     Executors.newScheduledThreadPool(
                             1, new ExecutorThreadFactory("mongodb-bulk-writer"));
