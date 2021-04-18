@@ -7,12 +7,12 @@ import java.io.Serializable;
  **/
 public class MongoOptions implements Serializable {
 
-    public static final String TRANSACTION_ENABLED = "transaction.enable";
+    public static final String SINK_TRANSACTION_ENABLED = "sink.transaction.enable";
 
-    public static final String BULK_FLUSH_ON_CHECKPOINT = "bulk.flush.on-checkpoint.enable";
+    public static final String SINK_FLUSH_ON_CHECKPOINT = "sink.flush.on-checkpoint";
 
-    public static final String BULK_FLUSH_SIZE = "bulk.max.documents";
+    public static final String SINK_FLUSH_SIZE = "sink.flush.size";
 
-    public static final String BULK_FLUSH_TIME = "bulk.max.time";
+    public static final String SINK_FLUSH_INTERVAL = "sink.flush.interval";
 
 }

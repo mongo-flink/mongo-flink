@@ -1,7 +1,7 @@
 package mongoflink.sink;
 
-import mongoflink.config.Configuration;
-import mongoflink.config.ConfigurationFactory;
+import mongoflink.config.SinkConfiguration;
+import mongoflink.config.SinkConfigurationFactory;
 import mongoflink.internal.connection.MongoClientProvider;
 import mongoflink.internal.connection.MongoColloctionProviders;
 import mongoflink.serde.DocumentSerializer;
@@ -32,14 +32,14 @@ public class MongoSink<IN> implements Sink<IN, DocumentBulk, DocumentBulk, Void>
 
     private DocumentSerializer<IN> serializer;
 
-    private final Configuration configuration;
+    private final SinkConfiguration configuration;
 
     public MongoSink(String connectionString,
                      String database,
                      String collection,
                      DocumentSerializer<IN> serializer,
                      Properties properties) {
-        this.configuration = ConfigurationFactory.fromProperties(properties);
+        this.configuration = SinkConfigurationFactory.fromProperties(properties);
         this.serializer = serializer;
         this.clientProvider =
                 MongoColloctionProviders

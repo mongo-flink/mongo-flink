@@ -31,10 +31,10 @@ public class MongoInsertSinkTest extends  MongoSinkTestBase {
         long rows = 1000L;
 
         Properties properties = new Properties();
-        properties.setProperty(MongoOptions.TRANSACTION_ENABLED, "false");
-        properties.setProperty(MongoOptions.BULK_FLUSH_ON_CHECKPOINT, "false");
-        properties.setProperty(MongoOptions.BULK_FLUSH_SIZE, String.valueOf(1_000L));
-        properties.setProperty(MongoOptions.BULK_FLUSH_TIME, String.valueOf(10_000L));
+        properties.setProperty(MongoOptions.SINK_TRANSACTION_ENABLED, "false");
+        properties.setProperty(MongoOptions.SINK_FLUSH_ON_CHECKPOINT, "false");
+        properties.setProperty(MongoOptions.SINK_FLUSH_SIZE, String.valueOf(1_000L));
+        properties.setProperty(MongoOptions.SINK_FLUSH_INTERVAL, String.valueOf(10_000L));
 
         env.addSource(new DataGeneratorSource<>(new StringGenerator(), rps, rows))
                 .returns(String.class)

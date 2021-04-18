@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Configuration for {@link mongoflink.sink.MongoSink}.
  **/
-public class Configuration implements Serializable {
+public class SinkConfiguration implements Serializable {
 
     private boolean isTransactional;
 
@@ -13,7 +13,7 @@ public class Configuration implements Serializable {
 
     private long bulkFlushSize;
 
-    private long bulkFlushTime;
+    private long bulkFlushInterval;
 
     public boolean isTransactional() {
         return isTransactional;
@@ -39,11 +39,11 @@ public class Configuration implements Serializable {
         this.bulkFlushSize = bulkFlushSize;
     }
 
-    public long getBulkFlushTime() {
-        return bulkFlushTime;
+    public long getBulkFlushInterval() {
+        return bulkFlushInterval;
     }
 
-    public void setBulkFlushTime(long bulkFlushTime) {
-        this.bulkFlushTime = bulkFlushTime;
+    public void setBulkFlushInterval(long bulkFlushInterval) {
+        this.bulkFlushInterval = bulkFlushInterval;
     }
 }

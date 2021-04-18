@@ -2,23 +2,17 @@ package mongoflink.sink;
 
 
 import mongoflink.config.MongoOptions;
-import mongoflink.serde.DocumentSerializer;
-import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.runtime.minicluster.MiniCluster;
 import org.apache.flink.runtime.minicluster.MiniClusterConfiguration;
-import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.source.datagen.DataGenerator;
 import org.apache.flink.streaming.api.functions.source.datagen.DataGeneratorSource;
 import org.apache.flink.streaming.api.graph.StreamGraph;
-import org.bson.Document;
 
 import org.junit.Test;
 
 import java.util.Properties;
-import java.util.Random;
 
 import static org.junit.Assert.*;
 
@@ -36,8 +30,8 @@ public class MongoTransactionalSinkTest extends MongoSinkTestBase {
         long rows = 1000L;
 
         Properties properties = new Properties();
-        properties.setProperty(MongoOptions.TRANSACTION_ENABLED, "true");
-        properties.setProperty(MongoOptions.BULK_FLUSH_ON_CHECKPOINT, "true");
+        properties.setProperty(MongoOptions.SINK_TRANSACTION_ENABLED, "true");
+        properties.setProperty(MongoOptions.SINK_FLUSH_ON_CHECKPOINT, "true");
         env.addSource(new DataGeneratorSource<>(new StringGenerator(), rps, rows))
                 .returns(String.class)
                 .sinkTo(new MongoSink<>(CONNECT_STRING, DATABASE_NAME, COLLECTION,

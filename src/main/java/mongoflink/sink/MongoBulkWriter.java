@@ -2,7 +2,7 @@ package mongoflink.sink;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
-import mongoflink.config.Configuration;
+import mongoflink.config.SinkConfiguration;
 import mongoflink.internal.connection.MongoClientProvider;
 import mongoflink.serde.DocumentSerializer;
 
@@ -56,7 +56,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
     public MongoBulkWriter(MongoClientProvider collectionProvider,
                            DocumentSerializer<IN> serializer,
-                           Configuration configuration) {
+                           SinkConfiguration configuration) {
         this.collectionProvider = collectionProvider;
         this.serializer = serializer;
         this.maxSize = configuration.getBulkFlushSize();
@@ -80,8 +80,8 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
                                     }
                                 }
                             },
-                            configuration.getBulkFlushTime(),
-                            configuration.getBulkFlushTime(),
+                            configuration.getBulkFlushInterval(),
+                            configuration.getBulkFlushInterval(),
                             TimeUnit.MILLISECONDS);
         }
     }
