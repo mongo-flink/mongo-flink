@@ -13,7 +13,6 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.concurrent.NotThreadSafe;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,37 +63,5 @@ public class MongoCommitter implements Committer<DocumentBulk> {
     @Override
     public void close() throws Exception {
         client.close();
-    }
-
-    @NotThreadSafe
-    class RetryPolicy {
-
-        private final long maxRetries;
-
-        private final long backoffMillis;
-
-        private long currentRetries = 0L;
-
-        RetryPolicy(long maxRetries, long backoffMillis) {
-            this.maxRetries = maxRetries;
-            this.backoffMillis = backoffMillis;
-        }
-
-        public boolean shouldRetry() {
-            return ++currentRetries > maxRetries;
-        }
-
-        public void backoff() {
-            try {
-                Thread.sleep(backoffMillis);
-            } catch (InterruptedException e) {
-                // exit backoff
-            }
-        }
-
-        public void reset() {
-            currentRetries = 0L;
-        }
-
     }
 }
