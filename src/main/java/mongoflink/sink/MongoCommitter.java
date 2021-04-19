@@ -48,7 +48,7 @@ public class MongoCommitter implements Committer<DocumentBulk> {
             if (bulk.getDocuments().size() > 0) {
                 CommittableTransaction transaction = new CommittableTransaction(collection, bulk.getDocuments());
                 try {
-                    session.withTransaction(transaction);
+                    session.withTransaction(transaction, txnOptions);
                 } catch (Exception e) {
                     // save to a new list that would be retried
                     LOGGER.error("Failed to commit with Mongo transaction", e);
