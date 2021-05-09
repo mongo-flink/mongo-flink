@@ -134,6 +134,9 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
     /**
      * Flush by non-transactional bulk write, which may result in data duplicates after multiple tries.
      * There may be concurrent flushes when concurrent checkpoints are enabled.
+     *
+     * We manually retry write operations, because the driver doesn't support automatic retries for some MongoDB
+     * setups (e.g. standalone instances). TODO: This should be configurable in the future.
      */
     private synchronized void flush() {
         if (!closed) {
