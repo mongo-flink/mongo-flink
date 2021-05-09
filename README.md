@@ -18,7 +18,7 @@ MongoFlink is not registered on Maven central yet, so users need to build the ar
 Checkout the project, and use Maven to install the project locally.
 
 ```
-    mvn install
+$ mvn install
 ```
 
 Then add the following dependency in your project's pom.xml.
@@ -35,7 +35,7 @@ Then add the following dependency in your project's pom.xml.
 
 Use MongoSink in your Flink application.
 
-```
+```java
     StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
     // non-transactional sink with a flush strategy of 1000 documents or 10 seconds
