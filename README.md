@@ -46,7 +46,7 @@ Use MongoSink in your Flink application.
     properties.setProperty(MongoOptions.SINK_FLUSH_INTERVAL, String.valueOf(10_000L));
 
     env.addSource(...)
-       .sinkTo(new MongoSink<>("mongodb://user:password@127.0.0.1:27017", "mydb"", "mycollection",
+       .sinkTo(new MongoSink<>("mongodb://user:password@127.0.0.1:27017", "mydb", "mycollection",
                                new StringDocumentSerializer(), properties));
 
     env.execute();
