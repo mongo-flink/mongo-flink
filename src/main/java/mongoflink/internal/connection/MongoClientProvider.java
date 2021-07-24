@@ -2,6 +2,7 @@ package mongoflink.internal.connection;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
 import java.io.Serializable;
@@ -16,6 +17,12 @@ public interface MongoClientProvider extends Serializable {
      * @return Current {@link MongoClient}.
      */
     MongoClient getClient();
+
+    /**
+     * Get the default database.
+     * @return Current {@link MongoDatabase}.
+     */
+    MongoDatabase getDefaultDatabase();
 
     /**
      * Get the default collection.

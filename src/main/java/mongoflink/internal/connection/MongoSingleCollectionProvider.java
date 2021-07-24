@@ -3,6 +3,7 @@ package mongoflink.internal.connection;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import org.apache.flink.util.Preconditions;
 import org.bson.Document;
 import org.slf4j.Logger;
@@ -23,6 +24,8 @@ public class MongoSingleCollectionProvider implements MongoClientProvider {
     private final String defaultCollection;
 
     private transient MongoClient client;
+
+    private transient MongoDatabase database;
 
     private transient MongoCollection<Document> collection;
 
@@ -48,10 +51,20 @@ public class MongoSingleCollectionProvider implements MongoClientProvider {
     }
 
     @Override
+    public MongoDatabase getDefaultDatabase() {
+        synchronized (this) {
+            if (database == null) {
+                database = getClient().getDatabase(defaultDatabase);
+            }
+        }
+        return database;
+    }
+
+    @Override
     public MongoCollection<Document> getDefaultCollection() {
         synchronized (this) {
             if (collection == null) {
-                collection = getClient().getDatabase(defaultDatabase).getCollection(defaultCollection);
+                collection = getDefaultDatabase().getCollection(defaultCollection);
             }
         }
         return collection;
