@@ -1,7 +1,7 @@
 # MongoFlink
-MongoFlink is a connector between MongoDB and Apache Flink. It acts as a Flink sink (and Flink source in the near
-future), and provides transaction mode(which ensures exactly-once semantics) for MongoDB 4.2 above, and non-transaction
-mode for MongoDB 3.0 above.
+MongoFlink is a connector between MongoDB and Apache Flink. It acts as a Flink sink (and an experimental Flink source),
+and provides transaction mode(which ensures exactly-once semantics) for MongoDB 4.2 above, and non-transaction mode
+for MongoDB 3.0 above.
 
 MongoFlink is in its early phase, and any use, feedback or contribution is welcome!
 
