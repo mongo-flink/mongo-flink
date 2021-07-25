@@ -1,9 +1,12 @@
-package mongoflink.source;
+package mongoflink.source.split;
 
 import com.google.common.collect.Lists;
 import mongoflink.EmbeddedMongoTestBase;
 import mongoflink.internal.connection.MongoClientProvider;
 import mongoflink.internal.connection.MongoColloctionProviders;
+import mongoflink.source.split.MongoSplit;
+import mongoflink.source.split.MongoSplitStrategy;
+import mongoflink.source.split.SamplingSplitStrategy;
 import org.bson.Document;
 import org.junit.Test;
 

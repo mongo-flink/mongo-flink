@@ -1,4 +1,4 @@
-package mongoflink.source;
+package mongoflink.source.split;
 
 import java.util.List;
 

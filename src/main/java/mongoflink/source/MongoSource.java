@@ -2,6 +2,12 @@ package mongoflink.source;
 
 import mongoflink.internal.connection.MongoClientProvider;
 import mongoflink.serde.DocumentDeserializer;
+import mongoflink.source.enumerator.MongoSplitEnumerator;
+import mongoflink.source.reader.MongoReader;
+import mongoflink.source.split.ListMongoSplitSerializer;
+import mongoflink.source.split.MongoSplit;
+import mongoflink.source.split.MongoSplitSerializer;
+import mongoflink.source.split.MongoSplitStrategy;
 import org.apache.flink.api.connector.source.Boundedness;
 import org.apache.flink.api.connector.source.Source;
 import org.apache.flink.api.connector.source.SourceReader;

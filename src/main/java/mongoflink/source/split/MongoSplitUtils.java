@@ -1,4 +1,4 @@
-package mongoflink.source;
+package mongoflink.source.split;
 
 import org.bson.BsonDocument;
 

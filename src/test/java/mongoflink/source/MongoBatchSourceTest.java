@@ -5,6 +5,7 @@ import mongoflink.EmbeddedMongoTestBase;
 import mongoflink.internal.connection.MongoClientProvider;
 import mongoflink.internal.connection.MongoColloctionProviders;
 import mongoflink.serde.DocumentDeserializer;
+import mongoflink.source.split.SamplingSplitStrategy;
 import mongoflink.utils.ListSink;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;

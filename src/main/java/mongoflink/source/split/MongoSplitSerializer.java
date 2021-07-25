@@ -1,4 +1,4 @@
-package mongoflink.source;
+package mongoflink.source.split;
 
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.bson.BsonDocument;
@@ -16,7 +16,7 @@ public class MongoSplitSerializer implements SimpleVersionedSerializer<MongoSpli
 
     private static final int VERSION = 1;
 
-    static final MongoSplitSerializer INSTANCE = new MongoSplitSerializer();
+    public static final MongoSplitSerializer INSTANCE = new MongoSplitSerializer();
 
     private static final Charset CHARSET = StandardCharsets.UTF_8;
 

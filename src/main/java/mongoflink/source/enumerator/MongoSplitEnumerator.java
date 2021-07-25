@@ -1,8 +1,10 @@
-package mongoflink.source;
+package mongoflink.source.enumerator;
 
 import com.google.common.collect.Lists;
 import com.mongodb.MongoNamespace;
 import mongoflink.internal.connection.MongoClientProvider;
+import mongoflink.source.split.MongoSplit;
+import mongoflink.source.split.MongoSplitStrategy;
 import org.apache.flink.api.connector.source.SplitEnumerator;
 import org.apache.flink.api.connector.source.SplitEnumeratorContext;
 import org.slf4j.Logger;

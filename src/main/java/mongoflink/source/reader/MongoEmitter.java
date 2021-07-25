@@ -1,6 +1,7 @@
-package mongoflink.source;
+package mongoflink.source.reader;
 
 import mongoflink.serde.DocumentDeserializer;
+import mongoflink.source.split.MongoSplitState;
 import org.apache.flink.api.connector.source.SourceOutput;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
 import org.bson.Document;

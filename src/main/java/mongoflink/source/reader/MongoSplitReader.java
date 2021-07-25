@@ -1,4 +1,4 @@
-package mongoflink.source;
+package mongoflink.source.reader;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -6,6 +6,8 @@ import com.google.common.collect.Queues;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 import mongoflink.internal.connection.MongoClientProvider;
+import mongoflink.source.split.MongoRecords;
+import mongoflink.source.split.MongoSplit;
 import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
 import org.apache.flink.connector.base.source.reader.splitreader.SplitReader;
 import org.apache.flink.connector.base.source.reader.splitreader.SplitsAddition;

@@ -1,4 +1,4 @@
-package mongoflink.source;
+package mongoflink.source.split;
 
 import com.google.common.collect.Queues;
 import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;

@@ -1,4 +1,4 @@
-package mongoflink.source;
+package mongoflink.source.split;
 
 import com.google.common.collect.Lists;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
@@ -8,8 +8,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -20,9 +18,7 @@ public class ListMongoSplitSerializer implements SimpleVersionedSerializer<List<
     // the version must be the same with MongoSplitSerializer
     private static final int VERSION = 1;
 
-    static final ListMongoSplitSerializer INSTANCE = new ListMongoSplitSerializer();
-
-    private static final Charset CHARSET = StandardCharsets.UTF_8;
+    public static final ListMongoSplitSerializer INSTANCE = new ListMongoSplitSerializer();
 
     private static final int MAGIC_NUMBER = 0xa7b255ed;
 

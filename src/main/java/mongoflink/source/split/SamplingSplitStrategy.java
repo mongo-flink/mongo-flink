@@ -1,4 +1,4 @@
-package mongoflink.source;
+package mongoflink.source.split;
 
 import com.google.common.collect.Lists;
 import com.mongodb.client.model.Aggregates;
@@ -109,7 +109,7 @@ public class SamplingSplitStrategy implements MongoSplitStrategy, Serializable {
         return new Builder();
     }
 
-    static class Builder {
+    public static class Builder {
         private MongoClientProvider clientProvider;
 
         private String splitKey;

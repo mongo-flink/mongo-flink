@@ -1,4 +1,4 @@
-package mongoflink.source;
+package mongoflink.source.split;
 
 import org.apache.flink.api.connector.source.SourceSplit;
 import org.bson.BsonDocument;
@@ -14,11 +14,11 @@ public class MongoSplit implements SourceSplit {
 
     private long startOffset;
 
-    MongoSplit(String splitId, BsonDocument query) {
+    public MongoSplit(String splitId, BsonDocument query) {
         this(splitId, query, 0);
     }
 
-    MongoSplit(String splitId, BsonDocument query, long startOffset) {
+    public MongoSplit(String splitId, BsonDocument query, long startOffset) {
         this.splitId = splitId;
         this.query = query;
         this.startOffset = startOffset;
