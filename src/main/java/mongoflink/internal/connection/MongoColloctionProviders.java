@@ -20,24 +20,24 @@ public class MongoColloctionProviders {
         private String collection;
 
         public Builder connectionString(String connectionString) {
-            Preconditions.checkNotNull(connectionString, "Connection string must not be null");
             this.connectionString = connectionString;
             return this;
         }
 
         public Builder database(String database) {
-            Preconditions.checkNotNull(database, "Database must not be null");
             this.database = database;
             return this;
         }
 
         public Builder collection(String collection) {
-            Preconditions.checkNotNull(collection, "Collection must not be null");
             this.collection = collection;
             return this;
         }
 
         public MongoClientProvider build() {
+            Preconditions.checkNotNull(connectionString, "Connection string must not be null");
+            Preconditions.checkNotNull(database, "Database must not be null");
+            Preconditions.checkNotNull(collection, "Collection must not be null");
             return new MongoSingleCollectionProvider(connectionString, database, collection);
         }
     }
