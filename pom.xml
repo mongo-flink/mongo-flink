@@ -6,7 +6,7 @@
 
     <groupId>org.mongoflink</groupId>
     <artifactId>mongo-flink</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
 
     <name>mongo-flink</name>
     <description>MongoFlink is a connector between MongoDB and Apache Flink. </description>
