@@ -9,6 +9,7 @@
     <version>0.1-SNAPSHOT</version>
 
     <name>mongo-flink</name>
+    <description>MongoFlink is a connector between MongoDB and Apache Flink. </description>
     <url>http://www.github.com/mongo-flink/mongo-flink</url>
 
     <licenses>
