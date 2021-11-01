@@ -12,24 +12,28 @@ MongoFlink is in its early phase, and any use, feedback or contribution is welco
 - MongoDB 3.0 above. The official MongoDB Java driver supports 3.0 above.
 - JDK 1.8 above.
 
-## Build
-MongoFlink is not registered on Maven central yet, so users need to build the artifacts first.
+## Dependency
 
-Checkout the project, and use Maven to install the project locally.
-
-```
-$ mvn install
-```
-
-Then add the following dependency in your project's pom.xml.
+For Maven users, add the following dependency in your project's pom.xml.
 
 ```
 <dependency>
     <groupId>org.mongoflink</groupId>
     <artifactId>mongo-flink</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
 </dependency>
 ```
+
+MongoFlink heavily relies on Flink connector interfaces, but Flink interfaces may not have good cross version
+compatibility, thus it's recommended to choose the version of MongoFlink that matches the version of Flink
+in your project.
+
+| version | flink version |
+| ------- | ------------- |
+| 0.1 | 1.13.1 |
+
+In case there's no version that fits your need, it's recommended to build your own one. See [Build from source]
+section below.
 
 ## Code
 
@@ -64,6 +68,14 @@ MongoFlink can be configured using properties.
 | sink.flush.on-checkpoint | Whether flush the buffered documents on checkpoint barriers. | false |
 | sink.flush.size | Max buffered documents before flush. Only valid when `sink.flush.on-checkpoint` is `false`. | 1000 |
 | sink.flush.interval | Flush interval in milliseconds. Only valid when `sink.flush.on-checkpoint` is `false`. | 30000 |
+
+# Build from source
+
+Checkout the project, and use Maven to build the project locally.
+
+```
+$ mvn verify
+```
 
 # Contribute to the project
 
