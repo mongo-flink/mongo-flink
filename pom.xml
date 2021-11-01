@@ -18,6 +18,15 @@
         </license>
     </licenses>
 
+    <developers>
+        <developer>
+            <name>Paul Lame</name>
+            <email>paullin3280@gmail.com</email>
+            <organization>MongoFlink</organization>
+            <organizationUrl>https://github.com/mongo-flink</organizationUrl>
+        </developer>
+    </developers>
+
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
