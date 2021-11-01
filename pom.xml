@@ -27,6 +27,12 @@
         </developer>
     </developers>
 
+    <scm>
+        <connection>scm:git:git://github.com/mongo-flink/mongo-flink.git</connection>
+        <developerConnection>scm:git:ssh://github.com:mongo-flink/mongo-flink.git</developerConnection>
+        <url>http://github.com/mongo-flink/mongo-flink</url>
+    </scm>
+
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
