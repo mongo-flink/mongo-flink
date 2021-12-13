@@ -11,7 +11,7 @@ import java.util.Queue;
 import java.util.Set;
 
 /**
- * MongoRecords wraps records to
+ * MongoRecords wraps records(documents) fetched from splits.
  **/
 public class MongoRecords implements RecordsWithSplitIds<Document> {
 
