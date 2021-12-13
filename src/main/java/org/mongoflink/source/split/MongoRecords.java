@@ -61,7 +61,7 @@ public class MongoRecords implements RecordsWithSplitIds<Document> {
         return new MongoRecords(splitId, results, Collections.emptySet());
     }
 
-    public static MongoRecords finishedSplit(String splitId) {
-        return new MongoRecords(null, null, Collections.singleton(splitId));
+    public static MongoRecords finishedSplit(String splitId, List<Document> results) {
+        return new MongoRecords(splitId, results, Collections.singleton(splitId));
     }
 }

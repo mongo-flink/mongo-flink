@@ -61,7 +61,7 @@ public class MongoSplitReader implements SplitReader<Document, MongoSplit>{
             documents.add(cursor.next());
         }
         offset += documents.size();
-        if (documents.size() >= fetchSize) {
+        if (cursor.hasNext()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Fetched {} records from split {}, current offset: {}", documents.size(), currentSplit, offset);
             }
@@ -69,7 +69,7 @@ public class MongoSplitReader implements SplitReader<Document, MongoSplit>{
         } else {
             String splitId = currentSplit.splitId();
             closeCurrentSplit();
-            return MongoRecords.finishedSplit(splitId);
+            return MongoRecords.finishedSplit(splitId, documents);
         }
     }
 
