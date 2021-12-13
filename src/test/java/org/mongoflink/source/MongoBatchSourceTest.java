@@ -69,8 +69,8 @@ public class MongoBatchSourceTest extends EmbeddedMongoTestBase {
         JobExecutionResult result = env.execute("test_batch_read");
         result.getNetRuntime();
 
-        assertEquals( 9000, ListSink.getElementsSet().size());
-
+        // 1000-10000
+        assertEquals( 9001, ListSink.getElementsSet().size());
     }
 
 }
