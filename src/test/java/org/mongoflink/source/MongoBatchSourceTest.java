@@ -66,13 +66,13 @@ public class MongoBatchSourceTest extends EmbeddedMongoTestBase {
         ListSink<String> sink = new ListSink<>();
         env.fromSource(mongoSource, WatermarkStrategy.noWatermarks(), "mongo_batch_source")
                 .returns(String.class)
-                .print("heihei");
+                .addSink(sink);
 
         JobExecutionResult result = env.execute("test_batch_read");
         result.getNetRuntime();
 
         // 1000-10000
-//        assertEquals( 9001, ListSink.getElementsSet().size());
+        assertEquals( 9001, ListSink.getElementsSet().size());
     }
 
 }
