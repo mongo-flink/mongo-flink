@@ -38,7 +38,7 @@ public class MongoReader<E> extends SingleThreadMultiplexSourceReaderBase<Docume
 
     @Override
     protected MongoSplit toSplitType(String splitId, MongoSplitState splitState) {
-        return new MongoSplit(splitId, splitState.getQuery(), splitState.getCurrentOffset());
+        return new MongoSplit(splitId, splitState.getQuery(), splitState.getProjection(), splitState.getCurrentOffset());
     }
 
     @Override

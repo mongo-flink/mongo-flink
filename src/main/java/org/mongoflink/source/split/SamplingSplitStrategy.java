@@ -29,6 +29,8 @@ public class SamplingSplitStrategy implements MongoSplitStrategy, Serializable {
 
     private BsonDocument matchQuery;
 
+    private BsonDocument projection;
+
     private long samplesPerSplit;
 
     private long sizePerSplit;
@@ -36,11 +38,13 @@ public class SamplingSplitStrategy implements MongoSplitStrategy, Serializable {
     SamplingSplitStrategy(MongoClientProvider clientProvider,
                                  String splitKey,
                                  BsonDocument matchQuery,
+                                 BsonDocument projection,
                                  long samplesPerSplit,
                                  long sizePerSplit) {
         this.clientProvider = clientProvider;
         this.splitKey = splitKey;
         this.matchQuery = matchQuery;
+        this.projection = projection;
         this.samplesPerSplit = samplesPerSplit;
         this.sizePerSplit = sizePerSplit;
     }
@@ -56,7 +60,7 @@ public class SamplingSplitStrategy implements MongoSplitStrategy, Serializable {
         int numSamples = (int) Math.floor(samplesPerSplit * numSplits);
 
         if (numSplits == 1) {
-            return Lists.newArrayList(MongoSplitUtils.createMongoSplit(0, matchQuery, splitKey, null, null));
+            return Lists.newArrayList(MongoSplitUtils.createMongoSplit(0, matchQuery, projection, splitKey, null, null));
         }
         List<Document> samples = sampleCollection(numSamples);
         List<Object> rightBoundaries =
@@ -98,10 +102,10 @@ public class SamplingSplitStrategy implements MongoSplitStrategy, Serializable {
         List<MongoSplit> splits = Lists.newArrayList();
         for (int i=0;i<rightBoundaries.size();i++) {
             Object min = i > 0 ? rightBoundaries.get(i - 1) : null;
-            splits.add(MongoSplitUtils.createMongoSplit(i, matchQuery, splitKey, min, rightBoundaries.get(i)));
+            splits.add(MongoSplitUtils.createMongoSplit(i, matchQuery, projection, splitKey, min, rightBoundaries.get(i)));
         }
         Object lastBoundary = rightBoundaries.get(rightBoundaries.size() - 1);
-        splits.add(MongoSplitUtils.createMongoSplit(splits.size(), matchQuery, splitKey, lastBoundary, null));
+        splits.add(MongoSplitUtils.createMongoSplit(splits.size(), matchQuery, projection, splitKey, lastBoundary, null));
         return splits;
     }
 
@@ -116,11 +120,15 @@ public class SamplingSplitStrategy implements MongoSplitStrategy, Serializable {
 
         private BsonDocument matchQuery;
 
+        private BsonDocument projection;
+
         private long samplesPerSplit;
 
         private long sizePerSplit;
 
         private static final BsonDocument EMPTY_MATCH_QUERY = new BsonDocument();
+
+        private static final BsonDocument EMPTY_PROJECTION = new BsonDocument();
 
         private static final String DEFAULT_SPLIT_KEY = "_id";
 
@@ -132,6 +140,7 @@ public class SamplingSplitStrategy implements MongoSplitStrategy, Serializable {
             this.clientProvider = null;
             this.splitKey = DEFAULT_SPLIT_KEY;
             this.matchQuery = EMPTY_MATCH_QUERY;
+            this.projection = EMPTY_PROJECTION;
             this.samplesPerSplit = DEFAULT_SAMPLES_PER_SPLIT;
             this.sizePerSplit = DEFAULT_SIZE_PER_SPLIT;
         }
@@ -151,6 +160,11 @@ public class SamplingSplitStrategy implements MongoSplitStrategy, Serializable {
             return this;
         }
 
+        public Builder setProjection(BsonDocument projection) {
+            this.projection = projection;
+            return this;
+        }
+
         public Builder setSamplesPerSplit(long samplesPerSplit) {
             this.samplesPerSplit = samplesPerSplit;
             return this;
@@ -167,6 +181,7 @@ public class SamplingSplitStrategy implements MongoSplitStrategy, Serializable {
                     clientProvider,
                     splitKey,
                     matchQuery,
+                    projection,
                     samplesPerSplit,
                     sizePerSplit
             );

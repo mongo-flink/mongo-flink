@@ -115,6 +115,7 @@ public class MongoSplitReader implements SplitReader<Document, MongoSplit>{
         FindIterable<Document> rs =
                 clientProvider.getDefaultCollection()
                         .find(currentSplit.getQuery())
+                        .projection(currentSplit.getProjection())
                         .batchSize(fetchSize);
         cursor = rs.iterator();
     }

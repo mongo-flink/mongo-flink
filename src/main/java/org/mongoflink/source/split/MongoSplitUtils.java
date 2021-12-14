@@ -17,15 +17,17 @@ public class MongoSplitUtils {
 
     public static MongoSplit createMongoSplit(int index,
                                               BsonDocument matchQuery,
+                                              BsonDocument projection,
                                               String splitKey,
                                               @Nullable Object lowerBound,
                                               @Nullable Object upperBound) {
-        return createMongoSplit(index, matchQuery, splitKey, lowerBound, upperBound, 0);
+        return createMongoSplit(index, matchQuery, projection, splitKey, lowerBound, upperBound, 0);
     }
 
 
     public static MongoSplit createMongoSplit(int index,
                                               BsonDocument matchQuery,
+                                              BsonDocument projection,
                                               String splitKey,
                                               @Nullable Object lowerBound,
                                               @Nullable Object upperBound,
@@ -49,6 +51,6 @@ public class MongoSplitUtils {
                     splitQuery::append
             );
         }
-        return new MongoSplit(String.format(SPLIT_ID_TEMPLATE, index), splitQuery, startOffset);
+        return new MongoSplit(String.format(SPLIT_ID_TEMPLATE, index), splitQuery, projection, startOffset);
     }
 }
