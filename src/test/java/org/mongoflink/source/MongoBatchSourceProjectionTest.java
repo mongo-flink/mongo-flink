@@ -18,12 +18,13 @@ import java.util.List;
 import java.util.Random;
 
 import static com.mongodb.client.model.Filters.gte;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for mongo source batch mode.
- **/
-public class MongoBatchSourceTest extends EmbeddedMongoTestBase {
+ * author: guanjun.zhang
+ * Date: 2021/12/15 10:13
+ */
+public class MongoBatchSourceProjectionTest extends EmbeddedMongoTestBase {
 
     protected static String DATABASE_NAME = "source_test";
     protected static String COLLECTION = "batch_read";
@@ -54,6 +55,10 @@ public class MongoBatchSourceTest extends EmbeddedMongoTestBase {
                 (DocumentDeserializer<String>) Document::toJson,
                 SamplingSplitStrategy.builder()
                         .setMatchQuery(gte("user_id", 1000).toBsonDocument())
+                        // set query field only gold
+                         .setProjection(Projections.include("gold").toBsonDocument())
+                        // set query field exclude gold
+                        // .setProjection(Projections.exclude("gold").toBsonDocument())
                         .setClientProvider(clientProvider)
                         .build()
         );
@@ -72,6 +77,7 @@ public class MongoBatchSourceTest extends EmbeddedMongoTestBase {
 
         // 1000-10000
         assertEquals( 9001, ListSink.getElementsSet().size());
+        System.out.println(ListSink.getElementsSet().get(0).toString());
     }
 
 }
