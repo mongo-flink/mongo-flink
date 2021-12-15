@@ -59,6 +59,9 @@ public class SamplingSplitStrategy implements MongoSplitStrategy, Serializable {
         int numSplits = (int) Math.ceil((double) count / numDocumentsPerSplit);
         int numSamples = (int) Math.floor(samplesPerSplit * numSplits);
 
+        if (numSplits == 0) {
+            return Lists.newArrayList();
+        }
         if (numSplits == 1) {
             return Lists.newArrayList(MongoSplitUtils.createMongoSplit(0, matchQuery, projection, splitKey, null, null));
         }
