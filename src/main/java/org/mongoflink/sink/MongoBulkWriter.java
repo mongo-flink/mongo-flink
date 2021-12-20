@@ -44,6 +44,8 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
     private transient volatile Exception flushException;
 
+    private transient SinkConfiguration configuration;
+
     private final long maxSize;
 
     private final boolean flushOnCheckpoint;
@@ -62,6 +64,10 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
         this.maxSize = configuration.getBulkFlushSize();
         this.currentBulk = new DocumentBulk(maxSize);
         this.flushOnCheckpoint = configuration.isFlushOnCheckpoint();
+        this.configuration = configuration;
+    }
+
+    private void startSchedule() {
         if (!flushOnCheckpoint && configuration.getBulkFlushInterval() > 0) {
             this.scheduler =
                     Executors.newScheduledThreadPool(
@@ -88,12 +94,15 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
     public void initializeState(List<DocumentBulk> recoveredBulks) {
         collection = collectionProvider.getDefaultCollection();
+
         for (DocumentBulk bulk: recoveredBulks) {
             for (Document document: bulk.getDocuments()) {
                 rollBulkIfNeeded();
                 currentBulk.add(document);
             }
         }
+
+        startSchedule();
     }
 
     @Override
