@@ -67,6 +67,7 @@ public class MongoBatchSourceProjectionTest extends EmbeddedMongoTestBase {
         env.getCheckpointConfig().setCheckpointInterval(1000L);
 
         ListSink<Document> sink = new ListSink<>();
+        sink.clearElementsSet();
         env.fromSource(mongoSource, WatermarkStrategy.noWatermarks(), "mongo_batch_source")
                 .returns(Document.class)
                 .addSink(sink);
