@@ -18,11 +18,10 @@ import java.util.List;
 import java.util.Random;
 
 import static com.mongodb.client.model.Filters.gte;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
- * author: guanjun.zhang
- * Date: 2021/12/15 10:13
+ * Test for mongo batch source projection
  */
 public class MongoBatchSourceProjectionTest extends EmbeddedMongoTestBase {
 
@@ -50,9 +49,9 @@ public class MongoBatchSourceProjectionTest extends EmbeddedMongoTestBase {
         }
         clientProvider.getDefaultCollection().insertMany(docs);
 
-        MongoSource<String> mongoSource = new MongoSource<>(
+        MongoSource<Document> mongoSource = new MongoSource<>(
                 clientProvider,
-                (DocumentDeserializer<String>) Document::toJson,
+                (DocumentDeserializer<Document>) Document -> Document,
                 SamplingSplitStrategy.builder()
                         .setMatchQuery(gte("user_id", 1000).toBsonDocument())
                         // set query field only gold
@@ -67,9 +66,9 @@ public class MongoBatchSourceProjectionTest extends EmbeddedMongoTestBase {
         env.setParallelism(1);
         env.getCheckpointConfig().setCheckpointInterval(1000L);
 
-        ListSink<String> sink = new ListSink<>();
+        ListSink<Document> sink = new ListSink<>();
         env.fromSource(mongoSource, WatermarkStrategy.noWatermarks(), "mongo_batch_source")
-                .returns(String.class)
+                .returns(Document.class)
                 .addSink(sink);
 
         JobExecutionResult result = env.execute("test_batch_read");
@@ -77,7 +76,9 @@ public class MongoBatchSourceProjectionTest extends EmbeddedMongoTestBase {
 
         // 1000-10000
         assertEquals( 9001, ListSink.getElementsSet().size());
-        System.out.println(ListSink.getElementsSet().get(0).toString());
+        assertNull(((Document) ListSink.getElementsSet().get(0)).getString("user_id"));
+        assertNull(((Document) ListSink.getElementsSet().get(0)).getInteger("level"));
+        assertNotNull(((Document) ListSink.getElementsSet().get(0)).getInteger("gold"));
     }
 
 }
