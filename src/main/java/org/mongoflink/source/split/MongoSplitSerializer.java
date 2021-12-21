@@ -31,8 +31,9 @@ public class MongoSplitSerializer implements SimpleVersionedSerializer<MongoSpli
     public byte[] serialize(MongoSplit obj) throws IOException {
         final byte[] splitIdBytes = obj.splitId().getBytes(CHARSET);
         final byte[] queryBytes = obj.getQuery().toJson().getBytes(CHARSET);
+        final byte[] projectionBytes = obj.getProjection().toJson().getBytes(CHARSET);
 
-        final byte[] targetBytes = new byte[20 + queryBytes.length + splitIdBytes.length];
+        final byte[] targetBytes = new byte[24 + queryBytes.length + projectionBytes.length + splitIdBytes.length];
 
         ByteBuffer bb = ByteBuffer.wrap(targetBytes).order(ByteOrder.LITTLE_ENDIAN);
         bb.putInt(MAGIC_NUMBER);
@@ -40,6 +41,8 @@ public class MongoSplitSerializer implements SimpleVersionedSerializer<MongoSpli
         bb.put(splitIdBytes);
         bb.putInt(queryBytes.length);
         bb.put(queryBytes);
+        bb.putInt(projectionBytes.length);
+        bb.put(projectionBytes);
         bb.putLong(obj.getStartOffset());
 
         return targetBytes;
@@ -72,8 +75,13 @@ public class MongoSplitSerializer implements SimpleVersionedSerializer<MongoSpli
         bb.get(queryBytes);
         BsonDocument query = BsonDocument.parse(new String(queryBytes, CHARSET));
 
+        final int projectionLength = bb.getInt();
+        final byte[] projectionBytes = new byte[projectionLength];
+        bb.get(projectionBytes);
+        final BsonDocument projection = BsonDocument.parse(new String(projectionBytes, CHARSET));
+
         long startOffset = bb.getLong();
 
-        return new MongoSplit(splitId, query, startOffset);
+        return new MongoSplit(splitId, query, projection, startOffset);
     }
 }

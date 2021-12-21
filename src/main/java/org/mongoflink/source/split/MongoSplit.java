@@ -12,19 +12,24 @@ public class MongoSplit implements SourceSplit {
 
     private final BsonDocument query;
 
+    private final BsonDocument projection;
+
     private long startOffset;
 
-    public MongoSplit(String splitId, BsonDocument query) {
-        this(splitId, query, 0);
+    public MongoSplit(String splitId, BsonDocument query, BsonDocument projection) {
+        this(splitId, query, projection, 0);
     }
 
-    public MongoSplit(String splitId, BsonDocument query, long startOffset) {
+    public MongoSplit(String splitId, BsonDocument query, BsonDocument projection, long startOffset) {
         this.splitId = splitId;
         this.query = query;
+        this.projection= projection;
         this.startOffset = startOffset;
     }
 
     public BsonDocument getQuery() {return query;}
+
+    public BsonDocument getProjection() {return projection;}
 
     public long getStartOffset() {
         return startOffset;

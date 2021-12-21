@@ -21,9 +21,9 @@ import static com.mongodb.client.model.Filters.gte;
 import static org.junit.Assert.*;
 
 /**
- * Tests for mongo source batch mode.
- **/
-public class MongoBatchSourceTest extends EmbeddedMongoTestBase {
+ * Test for mongo batch source projection
+ */
+public class MongoBatchSourceProjectionTest extends EmbeddedMongoTestBase {
 
     protected static String DATABASE_NAME = "source_test";
     protected static String COLLECTION = "batch_read";
@@ -49,11 +49,15 @@ public class MongoBatchSourceTest extends EmbeddedMongoTestBase {
         }
         clientProvider.getDefaultCollection().insertMany(docs);
 
-        MongoSource<String> mongoSource = new MongoSource<>(
+        MongoSource<Document> mongoSource = new MongoSource<>(
                 clientProvider,
-                (DocumentDeserializer<String>) Document::toJson,
+                (DocumentDeserializer<Document>) Document -> Document,
                 SamplingSplitStrategy.builder()
                         .setMatchQuery(gte("user_id", 1000).toBsonDocument())
+                        // set query field only gold
+                         .setProjection(Projections.include("gold").toBsonDocument())
+                        // set query field exclude gold
+                        // .setProjection(Projections.exclude("gold").toBsonDocument())
                         .setClientProvider(clientProvider)
                         .build()
         );
@@ -62,9 +66,10 @@ public class MongoBatchSourceTest extends EmbeddedMongoTestBase {
         env.setParallelism(1);
         env.getCheckpointConfig().setCheckpointInterval(1000L);
 
-        ListSink<String> sink = new ListSink<>();
+        ListSink<Document> sink = new ListSink<>();
+        sink.clearElementsSet();
         env.fromSource(mongoSource, WatermarkStrategy.noWatermarks(), "mongo_batch_source")
-                .returns(String.class)
+                .returns(Document.class)
                 .addSink(sink);
 
         JobExecutionResult result = env.execute("test_batch_read");
@@ -72,6 +77,9 @@ public class MongoBatchSourceTest extends EmbeddedMongoTestBase {
 
         // 1000-10000
         assertEquals( 9001, ListSink.getElementsSet().size());
+        assertNull(((Document) ListSink.getElementsSet().get(0)).getString("user_id"));
+        assertNull(((Document) ListSink.getElementsSet().get(0)).getInteger("level"));
+        assertNotNull(((Document) ListSink.getElementsSet().get(0)).getInteger("gold"));
     }
 
 }
