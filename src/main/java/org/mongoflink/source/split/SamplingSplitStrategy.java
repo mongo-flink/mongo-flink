@@ -12,6 +12,7 @@ import org.bson.Document;
 import org.mongoflink.internal.connection.MongoClientProvider;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -66,6 +67,9 @@ public class SamplingSplitStrategy implements MongoSplitStrategy, Serializable {
             return Lists.newArrayList(MongoSplitUtils.createMongoSplit(0, matchQuery, projection, splitKey, null, null));
         }
         List<Document> samples = sampleCollection(numSamples);
+        if (samples.size() == 0) {
+            return Collections.emptyList();
+        }
         List<Object> rightBoundaries =
                 IntStream.range(0, samples.size())
                         .filter(i -> i % samplesPerSplit == 0 || !matchQuery.isEmpty() && i == count -1)
