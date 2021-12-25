@@ -28,9 +28,9 @@ MongoFlink heavily relies on Flink connector interfaces, but Flink interfaces ma
 compatibility, thus it's recommended to choose the version of MongoFlink that matches the version of Flink
 in your project.
 
-| version | flink version |
-| ------- | ------------- |
-| 0.1 | 1.13.1 |
+| version | flink version | mongo version |
+| ------- | ------------- | ------------- |
+| 0.1 | 1.13.x | 4.2.x |
 
 In case there's no version that fits your need, it's recommended to build your own one. See [Build from source]
 section below.
