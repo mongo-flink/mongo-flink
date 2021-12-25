@@ -106,6 +106,9 @@ public class SamplingSplitStrategy implements MongoSplitStrategy, Serializable {
     }
 
     private List<MongoSplit> createSplits(String splitKey, List<Object> rightBoundaries) {
+        if (rightBoundaries.size() == 0) {
+            return Collections.emptyList();
+        }
         List<MongoSplit> splits = Lists.newArrayList();
         for (int i=0;i<rightBoundaries.size();i++) {
             Object min = i > 0 ? rightBoundaries.get(i - 1) : null;
