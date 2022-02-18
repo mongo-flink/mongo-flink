@@ -40,7 +40,7 @@ public class MongoInsertSinkTest extends  MongoSinkTestBase {
                 .returns(String.class)
                 .sinkTo(new MongoSink<>(CONNECT_STRING, DATABASE_NAME, COLLECTION,
                         new StringDocumentSerializer(), properties));
-        StreamGraph streamGraph = env.getStreamGraph(MongoTransactionalSinkTest.class.getName());
+        StreamGraph streamGraph = env.getStreamGraph();
 
         final Configuration config = new Configuration();
         config.setString(RestOptions.BIND_PORT, "18081-19000");

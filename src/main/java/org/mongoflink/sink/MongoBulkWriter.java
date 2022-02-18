@@ -4,7 +4,7 @@ import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 
 import org.apache.flink.api.connector.sink.SinkWriter;
-import org.apache.flink.runtime.util.ExecutorThreadFactory;
+import org.apache.flink.util.concurrent.ExecutorThreadFactory;
 import org.bson.Document;
 import org.mongoflink.config.SinkConfiguration;
 import org.mongoflink.internal.connection.MongoClientProvider;
