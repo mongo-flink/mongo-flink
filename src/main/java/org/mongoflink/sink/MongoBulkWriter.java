@@ -122,12 +122,30 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
     @Override
     public void close() throws Exception {
+        // flush all cache data before close in non-transaction mode
+        if (!flushOnCheckpoint) {
+            synchronized (this) {
+                if (!closed) {
+                    try {
+                        rollBulkIfNeeded(true);
+                        flush();
+                    } catch (Exception e) {
+                        flushException = e;
+                    }
+                }
+            }
+        }
+
         closed = true;
         if (scheduledFuture != null) {
             scheduledFuture.cancel(false);
         }
         if (scheduler != null) {
             scheduler.shutdown();
+        }
+
+        if(collectionProvider!=null) {
+            collectionProvider.close();
         }
     }
 
