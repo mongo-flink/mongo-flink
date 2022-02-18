@@ -31,6 +31,7 @@ in your project.
 | version | flink version | mongo version |
 | ------- | ------------- | ------------- |
 | 0.1 | 1.13.x | 4.2.x |
+| 0.2 (unreleased) | 1.14.x | 4.4.x |
 
 In case there's no version that fits your need, it's recommended to build your own one. See [Build from source]
 section below.
