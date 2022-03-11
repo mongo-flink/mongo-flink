@@ -28,6 +28,8 @@ public class MongoCommitter implements Committer<DocumentBulk> {
 
     private final MongoCollection<Document> collection;
 
+    private final ClientSession session;
+
     private final static Logger LOGGER = LoggerFactory.getLogger(MongoCommitter.class);
 
     private TransactionOptions txnOptions = TransactionOptions.builder()
@@ -36,25 +38,27 @@ public class MongoCommitter implements Committer<DocumentBulk> {
             .writeConcern(WriteConcern.MAJORITY)
             .build();
 
+    private final static long TRANSACTION_TIMEOUT_MS = 60_000L;
+
     public MongoCommitter(MongoClientProvider clientProvider) {
         this.client = clientProvider.getClient();
         this.collection = clientProvider.getDefaultCollection();
+        this.session = client.startSession();
     }
 
     @Override
     public List<DocumentBulk> commit(List<DocumentBulk> committables) throws IOException {
-        ClientSession session = client.startSession();
         List<DocumentBulk> failedBulk = new ArrayList<>();
         for (DocumentBulk bulk : committables) {
             if (bulk.getDocuments().size() > 0) {
                 CommittableTransaction transaction = new CommittableTransaction(collection, bulk.getDocuments());
                 try {
-                    session.withTransaction(transaction, txnOptions);
+                    int insertedDocs = session.withTransaction(transaction, txnOptions);
+                    LOGGER.info("Inserted {} documents into collection {}.", insertedDocs, collection.getNamespace());
                 } catch (Exception e) {
                     // save to a new list that would be retried
-                    LOGGER.error("Failed to commit with Mongo transaction", e);
+                    LOGGER.error("Failed to commit with Mongo transaction.", e);
                     failedBulk.add(bulk);
-                    session.close();
                 }
             }
         }
@@ -63,6 +67,12 @@ public class MongoCommitter implements Committer<DocumentBulk> {
 
     @Override
     public void close() throws Exception {
+        long deadline = System.currentTimeMillis() + TRANSACTION_TIMEOUT_MS;
+        while (session.hasActiveTransaction() && System.currentTimeMillis() < deadline) {
+            // wait for active transaction to finish or timeout
+            Thread.sleep(5_000L);
+        }
+        session.close();
         client.close();
     }
 }
