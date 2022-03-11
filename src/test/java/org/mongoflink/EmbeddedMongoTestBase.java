@@ -32,7 +32,7 @@ public class EmbeddedMongoTestBase {
     public void before() throws Exception {
         MongodStarter starter = MongodStarter.getDefaultInstance();
         MongodConfig mongodConfig = MongodConfig.builder()
-                .version(Version.Main.V4_0)
+                .version(Version.Main.V4_4)
                 .net(new Net(HOST, PORT, Network.localhostIsIPv6()))
                 .build();
         this.mongodExe = starter.prepare(mongodConfig);

@@ -16,7 +16,7 @@ import java.util.Random;
 class MongoSinkTestBase extends EmbeddedMongoTestBase {
 
     protected static String DATABASE_NAME = "bulkwrite";
-    protected static String COLLECTION = "transactional-4_0";
+    protected static String COLLECTION = "transactional-v4";
 
 }
 
