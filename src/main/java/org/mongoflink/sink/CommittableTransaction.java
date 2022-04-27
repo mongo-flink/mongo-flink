@@ -14,9 +14,9 @@ import java.util.List;
  **/
 public class CommittableTransaction implements TransactionBody<Integer>, Serializable {
 
-    private final MongoCollection<Document> collection;
+    protected final MongoCollection<Document> collection;
 
-    private List<Document> bufferedDocuments = new ArrayList<>(BUFFER_INIT_SIZE);
+    protected List<Document> bufferedDocuments = new ArrayList<>(BUFFER_INIT_SIZE);
 
     private static final int BUFFER_INIT_SIZE = 1024;
 

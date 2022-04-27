@@ -8,16 +8,17 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.datagen.DataGeneratorSource;
 import org.apache.flink.streaming.api.graph.StreamGraph;
 import org.junit.Test;
-import org.mongoflink.config.MongoOptions;
+import org.mongoflink.config.MongoConnectorOptions;
 
-import java.util.Properties;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 import static org.junit.Assert.*;
 
 /**
  * Tests for MongoSink insert mode.
  **/
-public class MongoInsertSinkTest extends  MongoSinkTestBase {
+public class MongoInsertSinkTest extends MongoSinkTestBase {
 
     @Test
     public void testWrite() throws Exception {
@@ -30,16 +31,19 @@ public class MongoInsertSinkTest extends  MongoSinkTestBase {
         long rps = 50;
         long rows = 1000L;
 
-        Properties properties = new Properties();
-        properties.setProperty(MongoOptions.SINK_TRANSACTION_ENABLED, "false");
-        properties.setProperty(MongoOptions.SINK_FLUSH_ON_CHECKPOINT, "false");
-        properties.setProperty(MongoOptions.SINK_FLUSH_SIZE, String.valueOf(1_000L));
-        properties.setProperty(MongoOptions.SINK_FLUSH_INTERVAL, String.valueOf(10_000L));
+        MongoConnectorOptions options = MongoConnectorOptions.builder()
+                .withConnectString(CONNECT_STRING)
+                .withDatabase(DATABASE_NAME)
+                .withCollection(COLLECTION)
+                .withTransactionEnable(false)
+                .withFlushOnCheckpoint(false)
+                .withFlushSize(1_000)
+                .withFlushInterval(Duration.of(10_000L, ChronoUnit.MILLIS))
+                .build();
 
         env.addSource(new DataGeneratorSource<>(new StringGenerator(), rps, rows))
                 .returns(String.class)
-                .sinkTo(new MongoSink<>(CONNECT_STRING, DATABASE_NAME, COLLECTION,
-                        new StringDocumentSerializer(), properties));
+                .sinkTo(new MongoSink<>(new StringDocumentSerializer(), options));
         StreamGraph streamGraph = env.getStreamGraph();
 
         final Configuration config = new Configuration();
