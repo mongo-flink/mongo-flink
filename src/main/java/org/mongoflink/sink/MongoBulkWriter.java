@@ -39,7 +39,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
     private transient MongoCollection<Document> collection;
 
-    private final ConcurrentLinkedQueue<Document> currentBulk = new ConcurrentLinkedQueue<>();
+    private DocumentBulk currentBulk;
 
     private final List<DocumentBulk> pendingBulks = new ArrayList<>();
 
@@ -54,7 +54,6 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
     private final long maxSize;
 
     private final boolean flushOnCheckpoint;
-    private final boolean transactionEnable;
 
     private final boolean upsertEnable;
     private final String[] upsertKeys;
@@ -76,11 +75,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
         this.serializer = serializer;
         this.maxSize = options.getFlushSize();
         this.flushOnCheckpoint = options.getFlushOnCheckpoint();
-        this.transactionEnable = options.isTransactionEnable();
         this.options = options;
-    }
-
-    private void startSchedule() {
         if (!flushOnCheckpoint && this.options.getFlushInterval().getSeconds() > 0) {
             this.scheduler =
                     Executors.newScheduledThreadPool(
@@ -105,24 +100,21 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
         }
     }
 
-
     public void initializeState(List<DocumentBulk> recoveredBulks) {
         collection = collectionProvider.getDefaultCollection();
         for (DocumentBulk bulk : recoveredBulks) {
             for (Document document : bulk.getDocuments()) {
-                currentBulk.add(document);
                 rollBulkIfNeeded();
+                currentBulk.add(document);
             }
         }
-        startSchedule();
     }
 
     @Override
     public void write(IN o, Context context) throws IOException {
         checkFlushException();
-
-        currentBulk.add(serializer.serialize(o));
         rollBulkIfNeeded();
+        currentBulk.add(serializer.serialize(o));
     }
 
     @Override
@@ -137,42 +129,20 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
     @Override
     public List<DocumentBulk> snapshotState() throws IOException {
         List<DocumentBulk> inProgressAndPendingBulks = new ArrayList<>(1);
-        synchronized (this) {
-            DocumentBulk x = new DocumentBulk();
-            for (Document document : currentBulk) {
-                x.add(document);
-            }
-
-            inProgressAndPendingBulks.add(x);
-            inProgressAndPendingBulks.addAll(pendingBulks);
-        }
-
+        inProgressAndPendingBulks.add(currentBulk);
+        inProgressAndPendingBulks.addAll(pendingBulks);
+        pendingBulks.clear();
         return inProgressAndPendingBulks;
     }
 
     @Override
     public void close() throws Exception {
-        if (!transactionEnable) {
-            synchronized (this) {
-                if (!closed) {
-                    try {
-                        rollBulkIfNeeded(true);
-                        flush();
-                    } catch (Exception e) {
-                        flushException = e;
-                    }
-                }
-            }
-        }
         closed = true;
         if (scheduledFuture != null) {
             scheduledFuture.cancel(false);
         }
         if (scheduler != null) {
             scheduler.shutdown();
-        }
-        if (collectionProvider != null) {
-            collectionProvider.close();
         }
     }
 
@@ -264,21 +234,9 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
     }
 
     private synchronized void rollBulkIfNeeded(boolean force) {
-        int size = currentBulk.size();
-
-        if (force || size >= maxSize) {
-
-            DocumentBulk x = new DocumentBulk(maxSize);
-            while (size-- > 0) {
-                if (x.size() >= maxSize) {
-                    pendingBulks.add(x);
-                    x = new DocumentBulk(maxSize);
-                }
-
-                x.add(currentBulk.poll());
-            }
-
-            pendingBulks.add(x);
+        if (force || currentBulk.isFull()) {
+            pendingBulks.add(currentBulk);
+            currentBulk = new DocumentBulk(maxSize);
         }
     }
 
