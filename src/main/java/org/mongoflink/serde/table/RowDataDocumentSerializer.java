@@ -1,15 +1,15 @@
 package org.mongoflink.serde.table;
 
-import org.apache.flink.formats.common.TimestampFormat;
-import org.apache.flink.formats.json.JsonFormatOptions;
-import org.apache.flink.formats.json.RowDataToJsonConverters;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.bson.Document;
 import org.mongoflink.serde.DocumentSerializer;
+import org.mongoflink.serde.converter.JsonFormatOptions;
+import org.mongoflink.serde.converter.RowDataToJsonConverters;
+import org.mongoflink.serde.converter.TimestampFormat;
 
 /**
  * convert rowdata to document.

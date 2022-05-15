@@ -6,13 +6,17 @@ import org.apache.flink.api.connector.sink.Sink;
 import org.apache.flink.api.connector.sink.SinkWriter;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.mongoflink.config.MongoConnectorOptions;
+import org.mongoflink.config.SinkConfiguration;
+import org.mongoflink.config.SinkConfigurationFactory;
 import org.mongoflink.internal.connection.MongoClientProvider;
 import org.mongoflink.internal.connection.MongoColloctionProviders;
 import org.mongoflink.serde.DocumentSerializer;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 /**
  * <p> Flink sink connector for MongoDB. MongoSink supports transaction mode for MongoDB 4.2+ and non-transaction mode for
@@ -31,6 +35,30 @@ public class MongoSink<IN> implements Sink<IN, DocumentBulk, DocumentBulk, Void>
     private final DocumentSerializer<IN> serializer;
 
     private final MongoConnectorOptions options;
+
+    public MongoSink(String connectionString,
+                     String database,
+                     String collection,
+                     DocumentSerializer<IN> serializer,
+                     Properties properties) {
+        SinkConfiguration sinkConfiguration = SinkConfigurationFactory.fromProperties(properties);
+        this.serializer = serializer;
+        this.clientProvider =
+                MongoColloctionProviders
+                        .getBuilder()
+                        .connectionString(connectionString)
+                        .database(database)
+                        .collection(collection).build();
+        this.options = MongoConnectorOptions.builder()
+                .withDatabase(database)
+                .withCollection(collection)
+                .withConnectString(connectionString)
+                .withTransactionEnable(sinkConfiguration.isTransactional())
+                .withFlushOnCheckpoint(sinkConfiguration.isFlushOnCheckpoint())
+                .withFlushSize((int) sinkConfiguration.getBulkFlushSize())
+                .withFlushInterval(Duration.ofMillis(sinkConfiguration.getBulkFlushInterval()))
+                .build();
+    }
 
     public MongoSink(DocumentSerializer<IN> serializer,
                      MongoConnectorOptions options) {

@@ -52,6 +52,8 @@
         <flink.version>1.14.3</flink.version>
         <scala.version>2.11</scala.version>
         <mongo.version>4.4.1</mongo.version>
+        <jackson.version>2.13.3</jackson.version>
+
     </properties>
 
     <dependencies>
@@ -84,10 +86,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-json</artifactId>
-            <version>${flink.version}</version>
-            <scope>provided</scope>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>

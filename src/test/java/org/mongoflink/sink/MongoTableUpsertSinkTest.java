@@ -129,7 +129,6 @@ public class MongoTableUpsertSinkTest extends MongoSinkTestBase {
                 ")"
         );
 
-        System.out.println("select all");
         env.executeSql("select * from mongo_test_source_1").print();
 
         CloseableIterator<Row> collected = env.executeSql("select level from mongo_test_source_1 where user_id = 0").collect();

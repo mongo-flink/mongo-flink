@@ -2,6 +2,7 @@ package org.mongoflink.table;
 
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
+import org.apache.flink.table.api.TableColumn;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.source.DynamicTableSource;
@@ -10,6 +11,8 @@ import org.apache.flink.table.connector.source.SourceProvider;
 import org.apache.flink.table.connector.source.abilities.SupportsFilterPushDown;
 import org.apache.flink.table.connector.source.abilities.SupportsProjectionPushDown;
 import org.apache.flink.table.expressions.ResolvedExpression;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.logical.RowType;
 import org.bson.BsonDocument;
 import org.mongoflink.internal.connection.MongoClientProvider;
 import org.mongoflink.internal.connection.MongoColloctionProviders;
@@ -95,8 +98,12 @@ public class MongoDynamicTableSource implements ScanTableSource,
         if (projectedFieldNames == null || projectedFieldNames.length < 1) {
             projectedFieldNames = physicalSchema.getFieldNames();
         }
+        DataType[] projectedFieldType = new DataType[projectedFieldNames.length];
+        for (int i = 0; i < projectedFieldNames.length; i++) {
+            projectedFieldType[i] = physicalSchema.getFieldDataType(projectedFieldNames[i]).get();
+        }
 
-        DocumentRowDataDeserializer deserializer = new DocumentRowDataDeserializer(this.projectedFieldNames);
+        DocumentRowDataDeserializer deserializer = new DocumentRowDataDeserializer(this.projectedFieldNames, projectedFieldType);
         return SourceProvider.of(new MongoSource<>(clientProvider, deserializer, builder.build()));
     }
 
