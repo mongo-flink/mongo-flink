@@ -237,7 +237,6 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
                     break;
                 } catch (MongoException e) {
                     // maybe partial failure
-                    e.printStackTrace();
                     LOGGER.error("Failed to flush data to MongoDB", e);
                 }
             } while (!closed && retryPolicy.shouldBackoffRetry());

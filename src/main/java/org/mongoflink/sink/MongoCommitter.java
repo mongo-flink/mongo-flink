@@ -43,6 +43,10 @@ public class MongoCommitter implements Committer<DocumentBulk> {
 
     private final static long TRANSACTION_TIMEOUT_MS = 60_000L;
 
+    public MongoCommitter(MongoClientProvider clientProvider) {
+        this(clientProvider, false, new String[]{});
+    }
+
     public MongoCommitter(MongoClientProvider clientProvider, boolean enableUpsert, String[] upsertKeys) {
         this.client = clientProvider.getClient();
         this.collection = clientProvider.getDefaultCollection();

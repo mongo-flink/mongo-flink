@@ -83,11 +83,11 @@ public class MongoSink<IN> implements Sink<IN, DocumentBulk, DocumentBulk, Void>
     @Override
     public Optional<Committer<DocumentBulk>> createCommitter() throws IOException {
         if (options.isTransactionEnable()) {
-            String[] upsertKeys = new String[]{};
             if (options.isUpsertEnable()) {
-                upsertKeys = options.getUpsertKey();
+                String[] upsertKeys = options.getUpsertKey();
+                return Optional.of(new MongoCommitter(clientProvider, options.isUpsertEnable(), upsertKeys));
             }
-            return Optional.of(new MongoCommitter(clientProvider, options.isUpsertEnable(), upsertKeys));
+            return Optional.of(new MongoCommitter(clientProvider));
         }
         return Optional.empty();
     }
