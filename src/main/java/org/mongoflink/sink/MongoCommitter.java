@@ -38,12 +38,21 @@ public class MongoCommitter implements Committer<DocumentBulk> {
             .writeConcern(WriteConcern.MAJORITY)
             .build();
 
+    private final boolean enableUpsert;
+    private final String[] upsertKeys;
+
     private final static long TRANSACTION_TIMEOUT_MS = 60_000L;
 
     public MongoCommitter(MongoClientProvider clientProvider) {
+        this(clientProvider, false, new String[]{});
+    }
+
+    public MongoCommitter(MongoClientProvider clientProvider, boolean enableUpsert, String[] upsertKeys) {
         this.client = clientProvider.getClient();
         this.collection = clientProvider.getDefaultCollection();
         this.session = client.startSession();
+        this.enableUpsert = enableUpsert;
+        this.upsertKeys = upsertKeys;
     }
 
     @Override
@@ -51,7 +60,12 @@ public class MongoCommitter implements Committer<DocumentBulk> {
         List<DocumentBulk> failedBulk = new ArrayList<>();
         for (DocumentBulk bulk : committables) {
             if (bulk.getDocuments().size() > 0) {
-                CommittableTransaction transaction = new CommittableTransaction(collection, bulk.getDocuments());
+                CommittableTransaction transaction;
+                if (enableUpsert) {
+                    transaction = new CommittableUpsertTransaction(collection, bulk.getDocuments(), upsertKeys);
+                } else {
+                    transaction = new CommittableTransaction(collection, bulk.getDocuments());
+                }
                 try {
                     int insertedDocs = session.withTransaction(transaction, txnOptions);
                     LOGGER.info("Inserted {} documents into collection {}.", insertedDocs, collection.getNamespace());
