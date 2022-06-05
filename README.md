@@ -20,7 +20,7 @@ For Maven users, add the following dependency in your project's pom.xml.
 <dependency>
     <groupId>org.mongoflink</groupId>
     <artifactId>mongo-flink</artifactId>
-    <version>0.2</version>
+    <version>0.3</version>
 </dependency>
 ```
 
@@ -32,13 +32,14 @@ in your project.
 | ------- | ------------- | ------------- |
 | 0.1 | 1.13.x | 4.2.x |
 | 0.2 | 1.14.x | 4.4.x |
+| 0.3 | 1.15.x | 4.4.x |
 
 In case there's no version that fits your need, it's recommended to build your own one. See [Build from source]
 section below.
 
 ## Code
 
-Use MongoSink in your Flink application.
+Use MongoSink in your Flink DataStream application.
 
 ```java
     StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -55,6 +56,26 @@ Use MongoSink in your Flink application.
                                new StringDocumentSerializer(), properties));
 
     env.execute();
+```
+
+Use MongoSink in your Flink Table/SQL application.
+
+```java
+    TableEnvironment env = TableEnvironment.create(EnvironmentSettings.inStreamingMode());
+
+    env.executeSql("create table tbl_user_gold (" +
+            "    user_id long," +
+            "    gold long," +
+            "    PRIMARY key(user_id) NOT ENFORCED" +
+            ") with (" +
+            "    'connector'='mongo'," +
+            "    'connect_string' = 'mongodb://user:password@127.0.0.1:27017'," +
+            "    'database' = 'mydb'," +
+            "    'collection' = 'user_gold'" +
+            ")"
+
+    Table userGold = env.executeQuery("select * from tbl_user_gold");
+    );
 ```
 
 # Configuration
