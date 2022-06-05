@@ -20,7 +20,7 @@ For Maven users, add the following dependency in your project's pom.xml.
 <dependency>
     <groupId>org.mongoflink</groupId>
     <artifactId>mongo-flink</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
 </dependency>
 ```
 
