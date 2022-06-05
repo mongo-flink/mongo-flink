@@ -178,22 +178,12 @@ public class MongoFilters {
             return null;
         }
 
-//        PredicateLeaf.Type litType = getLiteralType(callExp);
-//        if (litType == null) {
-//            // unsupported literal type
-//            LOG.debug(
-//                    "Unsupported predicate [{}] cannot be pushed into Mongo.",
-//                    callExp);
-//            return null;
-//        }
-
         String colName = getColumnName(callExp);
 
         // fetch literal and ensure it is serializable
         Object literalObj = getLiteral(callExp).get();
-//        Object orcObj = toOrcObject(litType, literalObj);
         Serializable literal;
-//        // validate that literal is serializable
+        // validate that literal is serializable
         if (literalObj instanceof Serializable) {
             literal = (Serializable) literalObj;
         } else {

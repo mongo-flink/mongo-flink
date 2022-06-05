@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.data.*;
 import org.apache.flink.table.types.logical.*;
-import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -24,7 +23,10 @@ public class RowDataToJsonConverters implements Serializable{
     private final JsonFormatOptions.MapNullKeyMode mapNullKeyMode;
     private final String mapNullKeyLiteral;
 
-    public RowDataToJsonConverters(TimestampFormat timestampFormat, JsonFormatOptions.MapNullKeyMode mapNullKeyMode, String mapNullKeyLiteral) {
+    public RowDataToJsonConverters(
+            TimestampFormat timestampFormat,
+            JsonFormatOptions.MapNullKeyMode mapNullKeyMode,
+            String mapNullKeyLiteral) {
         this.timestampFormat = timestampFormat;
         this.mapNullKeyMode = mapNullKeyMode;
         this.mapNullKeyLiteral = mapNullKeyLiteral;
@@ -37,49 +39,29 @@ public class RowDataToJsonConverters implements Serializable{
     private RowDataToJsonConverter createNotNullConverter(LogicalType type) {
         switch(type.getTypeRoot()) {
             case NULL:
-                return (mapper, reuse, value) -> {
-                    return mapper.getNodeFactory().nullNode();
-                };
+                return (mapper, reuse, value) -> mapper.getNodeFactory().nullNode();
             case BOOLEAN:
-                return (mapper, reuse, value) -> {
-                    return mapper.getNodeFactory().booleanNode((Boolean)value);
-                };
+                return (mapper, reuse, value) -> mapper.getNodeFactory().booleanNode((Boolean)value);
             case TINYINT:
-                return (mapper, reuse, value) -> {
-                    return mapper.getNodeFactory().numberNode((Byte)value);
-                };
+                return (mapper, reuse, value) -> mapper.getNodeFactory().numberNode((Byte)value);
             case SMALLINT:
-                return (mapper, reuse, value) -> {
-                    return mapper.getNodeFactory().numberNode((Short)value);
-                };
+                return (mapper, reuse, value) -> mapper.getNodeFactory().numberNode((Short)value);
             case INTEGER:
             case INTERVAL_YEAR_MONTH:
-                return (mapper, reuse, value) -> {
-                    return mapper.getNodeFactory().numberNode((Integer)value);
-                };
+                return (mapper, reuse, value) -> mapper.getNodeFactory().numberNode((Integer)value);
             case BIGINT:
             case INTERVAL_DAY_TIME:
-                return (mapper, reuse, value) -> {
-                    return mapper.getNodeFactory().numberNode((Long)value);
-                };
+                return (mapper, reuse, value) -> mapper.getNodeFactory().numberNode((Long)value);
             case FLOAT:
-                return (mapper, reuse, value) -> {
-                    return mapper.getNodeFactory().numberNode((Float)value);
-                };
+                return (mapper, reuse, value) -> mapper.getNodeFactory().numberNode((Float)value);
             case DOUBLE:
-                return (mapper, reuse, value) -> {
-                    return mapper.getNodeFactory().numberNode((Double)value);
-                };
+                return (mapper, reuse, value) -> mapper.getNodeFactory().numberNode((Double)value);
             case CHAR:
             case VARCHAR:
-                return (mapper, reuse, value) -> {
-                    return mapper.getNodeFactory().textNode(value.toString());
-                };
+                return (mapper, reuse, value) -> mapper.getNodeFactory().textNode(value.toString());
             case BINARY:
             case VARBINARY:
-                return (mapper, reuse, value) -> {
-                    return mapper.getNodeFactory().binaryNode((byte[])((byte[])value));
-                };
+                return (mapper, reuse, value) -> mapper.getNodeFactory().binaryNode((byte[])value);
             case DATE:
                 return this.createDateConverter();
             case TIME_WITHOUT_TIME_ZONE:
@@ -116,7 +98,7 @@ public class RowDataToJsonConverters implements Serializable{
     private RowDataToJsonConverter createDateConverter() {
         return (mapper, reuse, value) -> {
             int days = (Integer)value;
-            LocalDate date = LocalDate.ofEpochDay((long)days);
+            LocalDate date = LocalDate.ofEpochDay(days);
             return mapper.getNodeFactory().textNode(DateTimeFormatter.ISO_LOCAL_DATE.format(date));
         };
     }
@@ -181,7 +163,7 @@ public class RowDataToJsonConverters implements Serializable{
 
             for(int i = 0; i < numElements; ++i) {
                 Object element = elementGetter.getElementOrNull(array, i);
-                node.add(elementConverter.convert(mapper, (JsonNode)null, element));
+                node.add(elementConverter.convert(mapper, null, element));
             }
 
             return node;
@@ -209,7 +191,7 @@ public class RowDataToJsonConverters implements Serializable{
                 int numElements = map.size();
 
                 for(int i = 0; i < numElements; ++i) {
-                    String fieldName = null;
+                    String fieldName;
                     if (keyArray.isNullAt(i)) {
                         switch(this.mapNullKeyMode) {
                             case LITERAL:
@@ -236,13 +218,10 @@ public class RowDataToJsonConverters implements Serializable{
     }
 
     private RowDataToJsonConverter createRowConverter(RowType type) {
-        String[] fieldNames = (String[])type.getFieldNames().toArray(new String[0]);
-        LogicalType[] fieldTypes = (LogicalType[])type.getFields().stream().map(RowType.RowField::getType).toArray((x$0) -> {
-            return new LogicalType[x$0];
-        });
-        RowDataToJsonConverter[] fieldConverters = (RowDataToJsonConverter[]) Arrays.stream(fieldTypes).map(this::createConverter).toArray((x$0) -> {
-            return new RowDataToJsonConverter[x$0];
-        });
+        String[] fieldNames = type.getFieldNames().toArray(new String[0]);
+        LogicalType[] fieldTypes = type.getFields().stream().map(RowType.RowField::getType).toArray(LogicalType[]::new);
+        RowDataToJsonConverter[] fieldConverters =
+                Arrays.stream(fieldTypes).map(this::createConverter).toArray(RowDataToJsonConverter[]::new);
         int fieldCount = type.getFieldCount();
         RowData.FieldGetter[] fieldGetters = new RowData.FieldGetter[fieldTypes.length];
 
@@ -276,9 +255,8 @@ public class RowDataToJsonConverters implements Serializable{
     }
 
     private RowDataToJsonConverter wrapIntoNullableConverter(RowDataToJsonConverter converter) {
-        return (mapper, reuse, object) -> {
-            return (JsonNode)(object == null ? mapper.getNodeFactory().nullNode() : converter.convert(mapper, reuse, object));
-        };
+        return (mapper, reuse, object) -> object == null ?
+                mapper.getNodeFactory().nullNode() : converter.convert(mapper, reuse, object);
     }
 
     public interface RowDataToJsonConverter extends Serializable {
