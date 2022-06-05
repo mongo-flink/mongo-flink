@@ -7,7 +7,10 @@ import java.util.Properties;
 
 /**
  * Simple factory for {@link SinkConfiguration}.
+ *
+ * Deprecated. Please use {@link MongoConnectorOptions} instead.
  **/
+@Deprecated
 public class SinkConfigurationFactory {
 
     public static SinkConfiguration fromProperties(Properties properties) {

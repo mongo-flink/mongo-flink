@@ -6,7 +6,10 @@ import java.io.Serializable;
 
 /**
  * Configuration for {@link MongoSink}.
+ *
+ * Deprecated. Please use {@link MongoConnectorOptions} instead.
  **/
+@Deprecated
 public class SinkConfiguration implements Serializable {
 
     private boolean isTransactional;

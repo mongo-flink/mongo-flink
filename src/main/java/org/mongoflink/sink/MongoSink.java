@@ -36,6 +36,7 @@ public class MongoSink<IN> implements Sink<IN, DocumentBulk, DocumentBulk, Void>
 
     private final MongoConnectorOptions options;
 
+    @Deprecated
     public MongoSink(String connectionString,
                      String database,
                      String collection,

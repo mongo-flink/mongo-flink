@@ -6,7 +6,10 @@ import java.io.Serializable;
 
 /**
  * Config options for {@link MongoSink}.
+ *
+ * Deprecated. Please use {@link MongoConnectorOptions} instead.
  **/
+@Deprecated
 public class MongoOptions implements Serializable {
 
     public static final String SINK_TRANSACTION_ENABLED = "sink.transaction.enable";
