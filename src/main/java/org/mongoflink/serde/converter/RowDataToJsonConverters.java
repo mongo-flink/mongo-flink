@@ -189,7 +189,7 @@ public class RowDataToJsonConverters implements Serializable{
     }
 
     private RowDataToJsonConverter createMapConverter(String typeSummary, LogicalType keyType, LogicalType valueType) {
-        if (!LogicalTypeChecks.hasFamily(keyType, LogicalTypeFamily.CHARACTER_STRING)) {
+        if (keyType.getTypeRoot().getFamilies().contains(LogicalTypeFamily.CHARACTER_STRING)) {
             throw new UnsupportedOperationException("JSON format doesn't support non-string as key type of map. The type is: " + typeSummary);
         } else {
             RowDataToJsonConverter valueConverter = this.createConverter(valueType);

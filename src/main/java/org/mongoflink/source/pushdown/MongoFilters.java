@@ -1,7 +1,7 @@
 package org.mongoflink.source.pushdown;
 
+import com.google.common.collect.ImmutableMap;
 import com.mongodb.client.model.Filters;
-import org.apache.flink.shaded.curator4.com.google.common.collect.ImmutableMap;
 import org.apache.flink.table.expressions.*;
 import org.apache.flink.table.functions.BuiltInFunctionDefinitions;
 import org.apache.flink.table.functions.FunctionDefinition;
