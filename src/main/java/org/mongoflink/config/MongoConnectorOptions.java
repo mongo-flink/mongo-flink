@@ -94,8 +94,6 @@ public class MongoConnectorOptions implements Serializable {
         protected String connectString;
         protected String database;
         protected String collection;
-        protected String user;
-        protected String password;
 
         protected boolean transactionEnable;
         protected boolean flushOnCheckpoint;
