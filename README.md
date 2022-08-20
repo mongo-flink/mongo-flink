@@ -1,14 +1,14 @@
 # MongoFlink
-MongoFlink is a connector between MongoDB and Apache Flink. It acts as a Flink sink (and an experimental Flink source),
-and provides transaction mode(which ensures exactly-once semantics) for MongoDB 4.2 above, and non-transaction mode
-for MongoDB 3.0 above.
+MongoFlink is a connector between MongoDB and Apache Flink. It acts as a Flink sink (and an experimental Flink bounded 
+source), and provides transaction mode(which ensures exactly-once semantics) for MongoDB 4.2 above, and non-transaction
+mode for MongoDB 3.0 above.
 
 MongoFlink is in its early phase, and any use, feedback or contribution is welcome!
 
 # Start to use
 ## Prerequisite
 
-- Flink 1.12 above. MongoFlink is built on top of the new sink API added in FLIP-143 or Flink 1.12.0.
+- Flink 1.12 above. MongoFlink is built on top of the new sink API added in Flink 1.12.0.
 - MongoDB 3.0 above. The official MongoDB Java driver supports 3.0 above.
 - JDK 1.8 above.
 
