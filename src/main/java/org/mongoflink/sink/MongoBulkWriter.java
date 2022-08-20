@@ -37,7 +37,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
     private final ConcurrentLinkedQueue<Document> currentBulk = new ConcurrentLinkedQueue<>();
 
-    private final List<DocumentBulk> pendingBulks = new ArrayList<>();
+    private final ArrayBlockingQueue<DocumentBulk> pendingBulks;
 
     private DocumentSerializer<IN> serializer;
 
@@ -72,6 +72,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
         this.collectionProvider = collectionProvider;
         this.serializer = serializer;
         this.maxSize = options.getFlushSize();
+        this.pendingBulks = new ArrayBlockingQueue<>(options.getMaxBufferedBatches());
         this.flushOnCheckpoint = options.getFlushOnCheckpoint();
         this.options = options;
         if (!flushOnCheckpoint && this.options.getFlushInterval().getSeconds() > 0) {
@@ -121,8 +122,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
         if (flushOnCheckpoint || flush) {
             rollBulkIfNeeded(true);
         }
-
-        return pendingBulks;
+        return new ArrayList<>(pendingBulks);
     }
 
     @Override

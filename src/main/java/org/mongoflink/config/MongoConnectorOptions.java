@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.time.Duration;
 
 /**
- * mongo connector options
+ * MongoDB connector options.
  */
 public class MongoConnectorOptions implements Serializable {
 
@@ -17,13 +17,20 @@ public class MongoConnectorOptions implements Serializable {
     protected final boolean flushOnCheckpoint;
     protected final int flushSize;
     protected final Duration flushInterval;
+    protected final int maxBufferedBatches;
     protected final boolean upsertEnable;
     protected final String[] upsertKey;
 
-    public MongoConnectorOptions(String connectString, String database, String collection,
-                                 boolean transactionEnable, boolean flushOnCheckpoint,
-                                 int flushSize, Duration flushInterval,
-                                 boolean upsertEnable, String[] upsertKey) {
+    public MongoConnectorOptions(String connectString,
+                                 String database,
+                                 String collection,
+                                 boolean transactionEnable,
+                                 boolean flushOnCheckpoint,
+                                 int flushSize,
+                                 Duration flushInterval,
+                                 int maxBufferedBatches,
+                                 boolean upsertEnable,
+                                 String[] upsertKey) {
         this.connectString = connectString;
         this.database = database;
         this.collection = collection;
@@ -31,6 +38,7 @@ public class MongoConnectorOptions implements Serializable {
         this.flushOnCheckpoint = flushOnCheckpoint;
         this.flushSize = flushSize;
         this.flushInterval = flushInterval;
+        this.maxBufferedBatches = maxBufferedBatches;
         this.upsertEnable = upsertEnable;
         this.upsertKey = upsertKey;
     }
@@ -63,6 +71,10 @@ public class MongoConnectorOptions implements Serializable {
         return flushInterval;
     }
 
+    public int getMaxBufferedBatches() {
+        return maxBufferedBatches;
+    }
+
     public boolean isUpsertEnable() {
         return upsertEnable;
     }
@@ -89,6 +101,7 @@ public class MongoConnectorOptions implements Serializable {
         protected boolean flushOnCheckpoint;
         protected int flushSize;
         protected Duration flushInterval;
+        protected int maxBufferedBatches = 5;
         protected boolean upsertEnable;
         protected String[] upsertKey;
 
@@ -127,6 +140,11 @@ public class MongoConnectorOptions implements Serializable {
             return this;
         }
 
+        public Builder withMaxBufferedBatches(int maxBufferedBatches) {
+            this.maxBufferedBatches = maxBufferedBatches;
+            return this;
+        }
+
         public Builder withUpsertEnable(boolean upsertEnable) {
             this.upsertEnable = upsertEnable;
             return this;
@@ -138,11 +156,18 @@ public class MongoConnectorOptions implements Serializable {
         }
 
         public MongoConnectorOptions build() {
-            return new MongoConnectorOptions(connectString, database, collection, transactionEnable, flushOnCheckpoint,
-                    flushSize, flushInterval, upsertEnable, upsertKey);
+            return new MongoConnectorOptions(
+                    connectString,
+                    database,
+                    collection,
+                    transactionEnable,
+                    flushOnCheckpoint,
+                    flushSize,
+                    flushInterval,
+                    maxBufferedBatches,
+                    upsertEnable,
+                    upsertKey);
         }
-
-
     }
 }
 

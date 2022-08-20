@@ -45,15 +45,18 @@ Use MongoSink in your Flink DataStream application.
     StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
     // non-transactional sink with a flush strategy of 1000 documents or 10 seconds
-    Properties properties = new Properties();
-    properties.setProperty(MongoOptions.SINK_TRANSACTION_ENABLED, "false");
-    properties.setProperty(MongoOptions.SINK_FLUSH_ON_CHECKPOINT, "false");
-    properties.setProperty(MongoOptions.SINK_FLUSH_SIZE, String.valueOf(1_000L));
-    properties.setProperty(MongoOptions.SINK_FLUSH_INTERVAL, String.valueOf(10_000L));
+    MongoConnectorOptions options = MongoConnectorOptions.builder()
+        .withDatabase("my_db")
+        .withCollection("my_collection")
+        .withConnectString("mongodb://user:password@127.0.0.1:27017")
+        .withTransactionEnable(false)
+        .withFlushOnCheckpoint(false)
+        .withFlushSize(1_000L)
+        .withFlushInterval(Duration.ofSeconds(10))
+        .build();
 
     env.addSource(...)
-       .sinkTo(new MongoSink<>("mongodb://user:password@127.0.0.1:27017", "mydb", "mycollection",
-                               new StringDocumentSerializer(), properties));
+       .sinkTo(new MongoSink<>(new StringDocumentSerializer(), options));
 
     env.execute();
 ```
@@ -80,16 +83,20 @@ Use MongoSink in your Flink Table/SQL application.
 
 # Configuration
 
-MongoFlink can be configured using properties.
+MongoFlink can be configured using `MongoConnectorOptions` or properties (deprecated).
 
 ## MongoSink
+ 
+| option                                  | properties key           | description                                                                                 | default value |
+|-----------------------------------------|--------------------------|---------------------------------------------------------------------------------------------|--------------|
+| MongoConnectorOptions.transactionEnable | sink.transaction.enable  | Whether to use transactions in MongoSink (requires MongoDB 4.2+).                           | false        |
+| MongoConnectorOptions.flushOnCheckpoint | sink.flush.on-checkpoint | Whether to flush the buffered documents on checkpoint barriers.                             | false        |
+| MongoConnectorOptions.flushSize         | sink.flush.size          | Max buffered documents before flush. Only valid when `sink.flush.on-checkpoint` is `false`. | 1000         |
+| MongoConnectorOptions.flushInterva      | sink.flush.interval      | Flush interval in milliseconds. Only valid when `sink.flush.on-checkpoint` is `false`.      | 30000        |
+| MongoConnectorOptions.maxBufferedBatches | (not supported)          | Max unflushed pending batches before blocking the writer.                                   | 5            |
+| MongoConnectorOptions.upsertEnable | (not supported)          | Whenter to write documents via upsert mode.                                                 | false        |
+| MongoConnectorOptions.upsertKey | (not supported)          | The primary keys for upsert. Only valid in upsert mode.                                     | []           |
 
-| key | description | default value |
-| --- | ----------- | ------------- |
-| sink.transaction.enable | Whether use transactions in MongoSink (requires MongoDB 4.2+). | false |
-| sink.flush.on-checkpoint | Whether flush the buffered documents on checkpoint barriers. | false |
-| sink.flush.size | Max buffered documents before flush. Only valid when `sink.flush.on-checkpoint` is `false`. | 1000 |
-| sink.flush.interval | Flush interval in milliseconds. Only valid when `sink.flush.on-checkpoint` is `false`. | 30000 |
 
 # Build from source
 
