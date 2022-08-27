@@ -85,7 +85,8 @@ Use MongoSink in your Flink Table/SQL application.
 
 # Configuration
 
-MongoFlink can be configured using `MongoConnectorOptions` or properties (deprecated).
+MongoFlink can be configured using `MongoConnectorOptions`(recommended) or properties in DataStream API and properties 
+in Table/SQL API.
 
 ## MongoSink
 
