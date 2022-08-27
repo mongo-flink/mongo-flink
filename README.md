@@ -28,6 +28,8 @@ MongoFlink heavily relies on Flink connector interfaces, but Flink interfaces ma
 compatibility, thus it's recommended to choose the version of MongoFlink that matches the version of Flink
 in your project.
 
+With regard to MongoDB compatibility, please refer to [MongoDB's docs about the Java driver](https://www.mongodb.com/docs/drivers/java/sync/current/compatibility/).
+
 | version | flink version | mongodb driver version |
 | ------- | ------------- |------------------------|
 | 0.1 | 1.13.x | 4.2.x                  |
