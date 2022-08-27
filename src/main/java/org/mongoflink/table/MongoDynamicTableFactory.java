@@ -18,10 +18,7 @@ import org.apache.flink.util.Preconditions;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class MongoDynamicTableFactory
         implements DynamicTableSourceFactory, DynamicTableSinkFactory {
@@ -45,12 +42,12 @@ public class MongoDynamicTableFactory
             ConfigOptions.key("sink.transaction.enable")
                     .booleanType()
                     .defaultValue(false)
-                    .withDescription("whether enable transaction");
+                    .withDescription("whether to enable transaction sink");
     private static final ConfigOption<Boolean> FLUSH_ON_CHECKPOINT =
             ConfigOptions.key("sink.flush.on-checkpoint")
                     .booleanType()
                     .defaultValue(false)
-                    .withDescription("flush on checkpoint");
+                    .withDescription("whether to flush on checkpoints");
     private static final ConfigOption<Integer> FLUSH_SIZE =
             ConfigOptions.key("sink.flush.size")
                     .intType()
@@ -61,6 +58,12 @@ public class MongoDynamicTableFactory
                     .durationType()
                     .defaultValue(Duration.of(30_000L, ChronoUnit.MILLIS))
                     .withDescription("flush interval");
+
+    private static final ConfigOption<Integer> MAX_IN_FIGHT_FLUSHES =
+            ConfigOptions.key("sink.max.in-flight.flushes")
+                    .intType()
+                    .defaultValue(5)
+                    .withDescription("max in-flight flushes before blocking further writes");
 
     private static final String IDENTIFIER = "mongo";
 
@@ -86,7 +89,13 @@ public class MongoDynamicTableFactory
         validate(options);
         ResolvedSchema resolvedSchema = context.getCatalogTable().getResolvedSchema();
         Optional<UniqueConstraint> primaryKey = resolvedSchema.getPrimaryKey();
-        MongoConnectorOptions mongoSinkOptions = getMongoSinkOptions(options, primaryKey);
+        List<String> primaryKeyFieldNames;
+        if (primaryKey.isPresent()) {
+            primaryKeyFieldNames = primaryKey.get().getColumns();
+        } else {
+            primaryKeyFieldNames = Collections.emptyList();
+        }
+        MongoConnectorOptions mongoSinkOptions = getMongoSinkOptions(options, primaryKeyFieldNames);
         return new MongoDynamicTableSink(mongoSinkOptions, resolvedSchema);
     }
 
@@ -111,6 +120,7 @@ public class MongoDynamicTableFactory
         options.add(FLUSH_ON_CHECKPOINT);
         options.add(FLUSH_SIZE);
         options.add(FLUSH_INTERVAL);
+        options.add(MAX_IN_FIGHT_FLUSHES);
         return options;
     }
 
@@ -127,27 +137,17 @@ public class MongoDynamicTableFactory
     }
 
     private MongoConnectorOptions getMongoSinkOptions(
-            ReadableConfig config, Optional<UniqueConstraint> primaryKey) {
-
-        MongoConnectorOptions.Builder builder =
-                MongoConnectorOptions.builder()
-                        .withConnectString(config.get(CONNECT_STRING))
-                        .withDatabase(config.get(DATABASE))
-                        .withCollection(config.get(COLLECTION))
-                        .withTransactionEnable(config.get(TRANSACTION_ENABLE))
-                        .withFlushOnCheckpoint(config.get(FLUSH_ON_CHECKPOINT))
-                        .withFlushSize(config.get(FLUSH_SIZE))
-                        .withFlushInterval(config.get(FLUSH_INTERVAL))
-                        .withUpsertEnable(false)
-                        .withUpsertKey(new String[] {});
-
-        if (primaryKey.isPresent()) {
-            UniqueConstraint uniqueConstraint = primaryKey.get();
-            List<String> columns = uniqueConstraint.getColumns();
-            builder.withUpsertEnable(true);
-            builder.withUpsertKey(columns.toArray(new String[] {}));
-        }
-
-        return builder.build();
+            ReadableConfig config, List<String> primaryKey) {
+        return MongoConnectorOptions.builder()
+                .withConnectString(config.get(CONNECT_STRING))
+                .withDatabase(config.get(DATABASE))
+                .withCollection(config.get(COLLECTION))
+                .withTransactionEnable(config.get(TRANSACTION_ENABLE))
+                .withFlushOnCheckpoint(config.get(FLUSH_ON_CHECKPOINT))
+                .withFlushSize(config.get(FLUSH_SIZE))
+                .withFlushInterval(config.get(FLUSH_INTERVAL))
+                .withUpsertEnable(!primaryKey.isEmpty())
+                .withUpsertKey(primaryKey.toArray(new String[0]))
+                .build();
     }
 }

@@ -89,15 +89,15 @@ MongoFlink can be configured using `MongoConnectorOptions` or properties (deprec
 
 ## MongoSink
 
-| option                                  | properties key           | description                                                                                | default value |
-|-----------------------------------------|--------------------------|--------------------------------------------------------------------------------------------|--------------|
-| MongoConnectorOptions.transactionEnable | sink.transaction.enable  | Whether to use transactions in MongoSink (requires MongoDB 4.2+).                          | false        |
-| MongoConnectorOptions.flushOnCheckpoint | sink.flush.on-checkpoint | Whether to flush the buffered documents on checkpoint barriers.                            | false        |
-| MongoConnectorOptions.flushSize         | sink.flush.size          | Max buffered documents before flush. Only valid when `sink.flush.on-checkpoint` is `false`. | 1000         |
-| MongoConnectorOptions.flushInterva      | sink.flush.interval      | Flush interval in milliseconds. Only valid when `sink.flush.on-checkpoint` is `false`.     | 30000        |
-| MongoConnectorOptions.maxInFlightFlushes | (not supported)          | Max in-flight flushes before blocking the writer.                                   | 5            |
-| MongoConnectorOptions.upsertEnable | (not supported)          | Whenter to write documents via upsert mode.                                                | false        |
-| MongoConnectorOptions.upsertKey | (not supported)          | The primary keys for upsert. Only valid in upsert mode.                                    | []           |
+| option                                  | properties key                              | description                                                                                    | default value |
+|-----------------------------------------|---------------------------------------------|------------------------------------------------------------------------------------------------|--------------|
+| MongoConnectorOptions.transactionEnable | sink.transaction.enable                     | Whether to use transactions in MongoSink (requires MongoDB 4.2+).                              | false        |
+| MongoConnectorOptions.flushOnCheckpoint | sink.flush.on-checkpoint                    | Whether to flush the buffered documents on checkpoint barriers.                                | false        |
+| MongoConnectorOptions.flushSize         | sink.flush.size                             | Max buffered documents before flush. Only valid when `sink.flush.on-checkpoint` is `false`.    | 1000         |
+| MongoConnectorOptions.flushInterva      | sink.flush.interval                         | Flush interval in milliseconds. Only valid when `sink.flush.on-checkpoint` is `false`.         | 30000        |
+| MongoConnectorOptions.maxInFlightFlushes | sink.max.in-flight.flushes                  | Max in-flight flushes before blocking the writer.                                              | 5            |
+| MongoConnectorOptions.upsertEnable | (true if the table has primary keys)        | Whether to write documents via upsert mode.                                                    | false        |
+| MongoConnectorOptions.upsertKey | (derived automatically from the primary key) | The primary keys for upsert. Only valid in upsert mode. Keys are in csv format for properties. | []           |
 
 
 # Build from source

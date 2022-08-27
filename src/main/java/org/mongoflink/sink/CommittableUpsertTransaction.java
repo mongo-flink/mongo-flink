@@ -13,7 +13,7 @@ import org.bson.conversions.Bson;
 import java.util.ArrayList;
 import java.util.List;
 
-/** An simple implementation of Mongo transaction body, which support upsert. */
+/** A simple implementation of Mongo transaction body, which supports upsert. */
 public class CommittableUpsertTransaction extends CommittableTransaction {
 
     private final String[] upsertKeys;
