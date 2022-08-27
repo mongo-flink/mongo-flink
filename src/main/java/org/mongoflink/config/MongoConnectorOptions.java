@@ -15,7 +15,7 @@ public class MongoConnectorOptions implements Serializable {
     protected final boolean flushOnCheckpoint;
     protected final int flushSize;
     protected final Duration flushInterval;
-    protected final int maxBufferedBatches;
+    protected final int maxInFlightFlushes;
     protected final boolean upsertEnable;
     protected final String[] upsertKey;
 
@@ -27,7 +27,7 @@ public class MongoConnectorOptions implements Serializable {
             boolean flushOnCheckpoint,
             int flushSize,
             Duration flushInterval,
-            int maxBufferedBatches,
+            int maxInFlightFlushes,
             boolean upsertEnable,
             String[] upsertKey) {
         this.connectString = connectString;
@@ -37,7 +37,7 @@ public class MongoConnectorOptions implements Serializable {
         this.flushOnCheckpoint = flushOnCheckpoint;
         this.flushSize = flushSize;
         this.flushInterval = flushInterval;
-        this.maxBufferedBatches = maxBufferedBatches;
+        this.maxInFlightFlushes = maxInFlightFlushes;
         this.upsertEnable = upsertEnable;
         this.upsertKey = upsertKey;
     }
@@ -70,8 +70,8 @@ public class MongoConnectorOptions implements Serializable {
         return flushInterval;
     }
 
-    public int getMaxBufferedBatches() {
-        return maxBufferedBatches;
+    public int getMaxInFlightFlushes() {
+        return maxInFlightFlushes;
     }
 
     public boolean isUpsertEnable() {
@@ -96,7 +96,7 @@ public class MongoConnectorOptions implements Serializable {
         protected boolean flushOnCheckpoint;
         protected int flushSize;
         protected Duration flushInterval;
-        protected int maxBufferedBatches = 5;
+        protected int maxInFlightFlushes = 5;
         protected boolean upsertEnable;
         protected String[] upsertKey;
 
@@ -135,8 +135,8 @@ public class MongoConnectorOptions implements Serializable {
             return this;
         }
 
-        public Builder withMaxBufferedBatches(int maxBufferedBatches) {
-            this.maxBufferedBatches = maxBufferedBatches;
+        public Builder withMaxInFlightFlushes(int maxInFlightFlushes) {
+            this.maxInFlightFlushes = maxInFlightFlushes;
             return this;
         }
 
@@ -159,7 +159,7 @@ public class MongoConnectorOptions implements Serializable {
                     flushOnCheckpoint,
                     flushSize,
                     flushInterval,
-                    maxBufferedBatches,
+                    maxInFlightFlushes,
                     upsertEnable,
                     upsertKey);
         }

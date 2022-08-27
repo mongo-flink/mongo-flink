@@ -73,7 +73,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
         this.collectionProvider = collectionProvider;
         this.serializer = serializer;
         this.maxSize = options.getFlushSize();
-        this.pendingBulks = new ArrayBlockingQueue<>(options.getMaxBufferedBatches());
+        this.pendingBulks = new ArrayBlockingQueue<>(options.getMaxInFlightFlushes());
         this.flushOnCheckpoint = options.getFlushOnCheckpoint();
         this.options = options;
         if (!flushOnCheckpoint && this.options.getFlushInterval().getSeconds() > 0) {
