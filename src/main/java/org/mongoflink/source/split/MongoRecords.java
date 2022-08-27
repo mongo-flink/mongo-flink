@@ -1,18 +1,18 @@
 package org.mongoflink.source.split;
 
-import com.google.common.collect.Queues;
 import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
+
+import com.google.common.collect.Queues;
 import org.bson.Document;
 
 import javax.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-/**
- * MongoRecords wraps records(documents) fetched from splits.
- **/
+/** MongoRecords wraps records(documents) fetched from splits. */
 public class MongoRecords implements RecordsWithSplitIds<Document> {
 
     private String splitId;
@@ -25,7 +25,7 @@ public class MongoRecords implements RecordsWithSplitIds<Document> {
 
     private MongoRecords(String splitId, List<Document> records, Set<String> finishedSplits) {
         this.splitId = splitId;
-        this.finishedSplits = finishedSplits == null ? Collections.emptySet(): finishedSplits;
+        this.finishedSplits = finishedSplits == null ? Collections.emptySet() : finishedSplits;
         if (records != null) {
             this.remaining.addAll(records);
         }
@@ -54,8 +54,7 @@ public class MongoRecords implements RecordsWithSplitIds<Document> {
     }
 
     @Override
-    public void recycle() {
-    }
+    public void recycle() {}
 
     public static MongoRecords forRecords(String splitId, List<Document> results) {
         return new MongoRecords(splitId, results, Collections.emptySet());

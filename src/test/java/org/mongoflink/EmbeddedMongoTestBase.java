@@ -2,6 +2,7 @@ package org.mongoflink;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
@@ -12,9 +13,7 @@ import de.flapdoodle.embed.process.runtime.Network;
 import org.junit.After;
 import org.junit.Before;
 
-/**
- * Base class for tests based on embedded MongoDB.
- **/
+/** Base class for tests based on embedded MongoDB. */
 public class EmbeddedMongoTestBase {
 
     protected MongodExecutable mongodExe;
@@ -26,20 +25,21 @@ public class EmbeddedMongoTestBase {
     protected static int PORT = 27018;
     protected static String DATABASE_NAME = "testdb";
     protected static String COLLECTION = "testcoll";
-    protected static String CONNECT_STRING = String.format("mongodb://%s:%d/%s", HOST, PORT, DATABASE_NAME);
+    protected static String CONNECT_STRING =
+            String.format("mongodb://%s:%d/%s", HOST, PORT, DATABASE_NAME);
 
     @Before
     public void before() throws Exception {
         MongodStarter starter = MongodStarter.getDefaultInstance();
-        MongodConfig mongodConfig = MongodConfig.builder()
-                .version(Version.Main.V4_4)
-                .net(new Net(HOST, PORT, Network.localhostIsIPv6()))
-                .build();
+        MongodConfig mongodConfig =
+                MongodConfig.builder()
+                        .version(Version.Main.V4_4)
+                        .net(new Net(HOST, PORT, Network.localhostIsIPv6()))
+                        .build();
         this.mongodExe = starter.prepare(mongodConfig);
         this.mongod = mongodExe.start();
         this.mongo = MongoClients.create(CONNECT_STRING);
     }
-
 
     @After
     public void after() throws Exception {

@@ -1,40 +1,40 @@
 package org.mongoflink.source.reader;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Queues;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCursor;
+import org.mongoflink.internal.connection.MongoClientProvider;
+import org.mongoflink.source.split.MongoRecords;
+import org.mongoflink.source.split.MongoSplit;
+
 import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
 import org.apache.flink.connector.base.source.reader.splitreader.SplitReader;
 import org.apache.flink.connector.base.source.reader.splitreader.SplitsAddition;
 import org.apache.flink.connector.base.source.reader.splitreader.SplitsChange;
+
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
 import org.bson.Document;
-import org.mongoflink.internal.connection.MongoClientProvider;
-import org.mongoflink.source.split.MongoRecords;
-import org.mongoflink.source.split.MongoSplit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Queue;
 
-/**
- * Reader that is responsible fetching records from MongoDB split by split.
- **/
-public class MongoSplitReader implements SplitReader<Document, MongoSplit>{
+/** Reader that is responsible fetching records from MongoDB split by split. */
+public class MongoSplitReader implements SplitReader<Document, MongoSplit> {
 
-    @Nullable
-    private MongoSplit currentSplit;
+    @Nullable private MongoSplit currentSplit;
 
     private final Queue<MongoSplit> pendingSplits;
 
     private final MongoClientProvider clientProvider;
 
-    @Nullable
-    private transient MongoCursor<Document> cursor;
+    @Nullable private transient MongoCursor<Document> cursor;
 
     private int offset = 0;
 
@@ -63,7 +63,11 @@ public class MongoSplitReader implements SplitReader<Document, MongoSplit>{
         offset += documents.size();
         if (cursor.hasNext()) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Fetched {} records from split {}, current offset: {}", documents.size(), currentSplit, offset);
+                LOG.debug(
+                        "Fetched {} records from split {}, current offset: {}",
+                        documents.size(),
+                        currentSplit,
+                        offset);
             }
             return MongoRecords.forRecords(currentSplit.splitId(), documents);
         } else {
@@ -109,11 +113,11 @@ public class MongoSplitReader implements SplitReader<Document, MongoSplit>{
         }
         LOG.info("Prepared to read split {}", currentSplit.splitId());
 
-
         offset = 0;
 
         FindIterable<Document> rs =
-                clientProvider.getDefaultCollection()
+                clientProvider
+                        .getDefaultCollection()
                         .find(currentSplit.getQuery())
                         .projection(currentSplit.getProjection())
                         .batchSize(fetchSize);

@@ -1,11 +1,13 @@
 package org.mongoflink.serde.table;
 
+import org.mongoflink.serde.DocumentDeserializer;
+
 import org.apache.flink.table.data.*;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.LogicalType;
+
 import org.bson.Document;
-import org.mongoflink.serde.DocumentDeserializer;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -14,18 +16,12 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 
 /**
- * assemble RowData by document key (which is field name.),
- * because mongo result columns in a different order than projection
- * eg:
- * db.collection.find({"a": {$gt: 1}}, {"a": 1, "b": 1, "c": 1, "d": 1, "_id": 0})
- * the order of result column may be.
- * +-----+-----+-----+------+
- * |b    |c    |d    |a     |
- * +-----+-----+-----+------+
- * |11001|11001|7334 |1001  |
- * +-----+-----+-----+------+
- * <p>
- * So we cannot construct RowData using indexes. we should use key(fieldName)
+ * assemble RowData by document key (which is field name.), because mongo result columns in a
+ * different order than projection eg: db.collection.find({"a": {$gt: 1}}, {"a": 1, "b": 1, "c": 1,
+ * "d": 1, "_id": 0}) the order of result column may be. +-----+-----+-----+------+ |b |c |d |a |
+ * +-----+-----+-----+------+ |11001|11001|7334 |1001 | +-----+-----+-----+------+
+ *
+ * <p>So we cannot construct RowData using indexes. we should use key(fieldName)
  */
 public class DocumentRowDataDeserializer implements DocumentDeserializer<RowData> {
 
@@ -42,8 +38,7 @@ public class DocumentRowDataDeserializer implements DocumentDeserializer<RowData
     }
 
     /**
-     *
-    * @see RowData class doc.
+     * @see RowData class doc.
      * @param document The input {@link Document}.
      * @return flink RowData
      */
@@ -83,11 +78,14 @@ public class DocumentRowDataDeserializer implements DocumentDeserializer<RowData
                     final int scale = ((DecimalType) fieldType).getScale();
                     // using decimal(20, 0) to support db type bigint unsigned, user should define
                     // decimal(20, 0) in SQL,
-                    // but other precision like decimal(30, 0) can work too from lenient consideration.
-                    rowData.setField(i, o instanceof BigInteger
-                            ? DecimalData.fromBigDecimal(
-                            new BigDecimal((BigInteger) o, 0), precision, scale)
-                            : DecimalData.fromBigDecimal((BigDecimal) o, precision, scale));
+                    // but other precision like decimal(30, 0) can work too from lenient
+                    // consideration.
+                    rowData.setField(
+                            i,
+                            o instanceof BigInteger
+                                    ? DecimalData.fromBigDecimal(
+                                            new BigDecimal((BigInteger) o, 0), precision, scale)
+                                    : DecimalData.fromBigDecimal((BigDecimal) o, precision, scale));
                     break;
                 case DATE:
                     ZonedDateTime date = ((Date) o).toInstant().atZone(ZoneId.systemDefault());
@@ -117,6 +115,4 @@ public class DocumentRowDataDeserializer implements DocumentDeserializer<RowData
         }
         return rowData;
     }
-
 }
-

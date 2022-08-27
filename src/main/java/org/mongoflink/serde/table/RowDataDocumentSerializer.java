@@ -1,19 +1,19 @@
 package org.mongoflink.serde.table;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.types.logical.LogicalType;
-import org.bson.Document;
 import org.mongoflink.serde.DocumentSerializer;
 import org.mongoflink.serde.converter.JsonFormatOptions;
 import org.mongoflink.serde.converter.RowDataToJsonConverters;
 import org.mongoflink.serde.converter.TimestampFormat;
 
-/**
- * convert rowdata to document.
- */
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.types.logical.LogicalType;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.bson.Document;
+
+/** convert rowdata to document. */
 public class RowDataDocumentSerializer implements DocumentSerializer<RowData> {
 
     private final RowDataToJsonConverters.RowDataToJsonConverter jsonConverter;
@@ -22,9 +22,10 @@ public class RowDataDocumentSerializer implements DocumentSerializer<RowData> {
     private final ObjectMapper mapper = new ObjectMapper();
 
     public RowDataDocumentSerializer(LogicalType logicalType) {
-        this.jsonConverter = new RowDataToJsonConverters(TimestampFormat.SQL,
-                JsonFormatOptions.MapNullKeyMode.LITERAL, null)
-                .createConverter(logicalType);
+        this.jsonConverter =
+                new RowDataToJsonConverters(
+                                TimestampFormat.SQL, JsonFormatOptions.MapNullKeyMode.LITERAL, null)
+                        .createConverter(logicalType);
     }
 
     @Override

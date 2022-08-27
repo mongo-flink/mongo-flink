@@ -1,6 +1,7 @@
 package org.mongoflink.source.split;
 
 import org.apache.flink.core.io.SimpleVersionedSerializer;
+
 import org.bson.BsonDocument;
 
 import java.io.IOException;
@@ -9,9 +10,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Simple serializer for {@link MongoSplit};
- **/
+/** Simple serializer for {@link MongoSplit}; */
 public class MongoSplitSerializer implements SimpleVersionedSerializer<MongoSplit> {
 
     private static final int VERSION = 1;
@@ -33,7 +32,8 @@ public class MongoSplitSerializer implements SimpleVersionedSerializer<MongoSpli
         final byte[] queryBytes = obj.getQuery().toJson().getBytes(CHARSET);
         final byte[] projectionBytes = obj.getProjection().toJson().getBytes(CHARSET);
 
-        final byte[] targetBytes = new byte[24 + queryBytes.length + projectionBytes.length + splitIdBytes.length];
+        final byte[] targetBytes =
+                new byte[24 + queryBytes.length + projectionBytes.length + splitIdBytes.length];
 
         ByteBuffer bb = ByteBuffer.wrap(targetBytes).order(ByteOrder.LITTLE_ENDIAN);
         bb.putInt(MAGIC_NUMBER);
@@ -68,7 +68,7 @@ public class MongoSplitSerializer implements SimpleVersionedSerializer<MongoSpli
         int splitIdLen = bb.getInt();
         final byte[] splitIdBytes = new byte[splitIdLen];
         bb.get(splitIdBytes);
-        String splitId = new String(splitIdBytes,CHARSET);
+        String splitId = new String(splitIdBytes, CHARSET);
 
         int queryLen = bb.getInt();
         final byte[] queryBytes = new byte[queryLen];

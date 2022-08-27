@@ -7,8 +7,8 @@ import java.io.Serializable;
 /**
  * Config options for {@link MongoSink}.
  *
- * Deprecated. Please use {@link MongoConnectorOptions} instead.
- **/
+ * <p>Deprecated. Please use {@link MongoConnectorOptions} instead.
+ */
 @Deprecated
 public class MongoOptions implements Serializable {
 
@@ -19,5 +19,4 @@ public class MongoOptions implements Serializable {
     public static final String SINK_FLUSH_SIZE = "sink.flush.size";
 
     public static final String SINK_FLUSH_INTERVAL = "sink.flush.interval";
-
 }

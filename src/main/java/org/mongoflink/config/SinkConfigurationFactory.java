@@ -8,17 +8,19 @@ import java.util.Properties;
 /**
  * Simple factory for {@link SinkConfiguration}.
  *
- * Deprecated. Please use {@link MongoConnectorOptions} instead.
- **/
+ * <p>Deprecated. Please use {@link MongoConnectorOptions} instead.
+ */
 @Deprecated
 public class SinkConfigurationFactory {
 
     public static SinkConfiguration fromProperties(Properties properties) {
         SinkConfiguration configuration = new SinkConfiguration();
         configuration.setTransactional(
-                PropertiesUtil.getBoolean(properties, MongoOptions.SINK_TRANSACTION_ENABLED, false));
+                PropertiesUtil.getBoolean(
+                        properties, MongoOptions.SINK_TRANSACTION_ENABLED, false));
         configuration.setFlushOnCheckpoint(
-                PropertiesUtil.getBoolean(properties, MongoOptions.SINK_FLUSH_ON_CHECKPOINT, false));
+                PropertiesUtil.getBoolean(
+                        properties, MongoOptions.SINK_FLUSH_ON_CHECKPOINT, false));
         configuration.setBulkFlushSize(
                 PropertiesUtil.getLong(properties, MongoOptions.SINK_FLUSH_SIZE, 1_000L));
         configuration.setBulkFlushInterval(
@@ -26,11 +28,13 @@ public class SinkConfigurationFactory {
 
         // validate config
         if (configuration.isTransactional()) {
-            Preconditions.checkArgument(configuration.isFlushOnCheckpoint(),
+            Preconditions.checkArgument(
+                    configuration.isFlushOnCheckpoint(),
                     "`%s` must be true when the transactional sink is enabled",
                     MongoOptions.SINK_FLUSH_ON_CHECKPOINT);
         }
-        Preconditions.checkArgument(configuration.getBulkFlushSize() > 0,
+        Preconditions.checkArgument(
+                configuration.getBulkFlushSize() > 0,
                 "`%s` must be greater than 0",
                 MongoOptions.SINK_FLUSH_SIZE);
 

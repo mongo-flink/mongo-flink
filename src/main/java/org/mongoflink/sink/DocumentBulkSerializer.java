@@ -4,6 +4,7 @@ import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.core.memory.DataInputDeserializer;
 import org.apache.flink.core.memory.DataInputView;
 import org.apache.flink.core.memory.DataOutputSerializer;
+
 import org.bson.BsonBinaryReader;
 import org.bson.BsonBinaryWriter;
 import org.bson.Document;
@@ -17,10 +18,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 
-/**
- * Simple serializer for {@link DocumentBulk}.
- **/
-public class DocumentBulkSerializer implements SimpleVersionedSerializer<DocumentBulk>, Serializable {
+/** Simple serializer for {@link DocumentBulk}. */
+public class DocumentBulkSerializer
+        implements SimpleVersionedSerializer<DocumentBulk>, Serializable {
 
     private static final int MAGIC_NUMBER = 0x2f35a24b;
 
@@ -68,11 +68,15 @@ public class DocumentBulkSerializer implements SimpleVersionedSerializer<Documen
         }
     }
 
-    private void serializeV1(DocumentBulk documentBulk, DataOutputSerializer out) throws IOException {
+    private void serializeV1(DocumentBulk documentBulk, DataOutputSerializer out)
+            throws IOException {
         for (Document document : documentBulk.getDocuments()) {
             BasicOutputBuffer outputBuffer = new BasicOutputBuffer();
             BsonBinaryWriter writer = new BsonBinaryWriter(outputBuffer);
-            DOCUMENT_CODEC.encode(writer, document, EncoderContext.builder().isEncodingCollectibleDocument(true).build());
+            DOCUMENT_CODEC.encode(
+                    writer,
+                    document,
+                    EncoderContext.builder().isEncodingCollectibleDocument(true).build());
             byte[] documentBytes = outputBuffer.toByteArray();
             out.writeInt(documentBytes.length);
             out.write(documentBytes);

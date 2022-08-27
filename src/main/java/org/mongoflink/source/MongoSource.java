@@ -1,12 +1,5 @@
 package org.mongoflink.source;
 
-import org.apache.flink.api.connector.source.Boundedness;
-import org.apache.flink.api.connector.source.Source;
-import org.apache.flink.api.connector.source.SourceReader;
-import org.apache.flink.api.connector.source.SourceReaderContext;
-import org.apache.flink.api.connector.source.SplitEnumerator;
-import org.apache.flink.api.connector.source.SplitEnumeratorContext;
-import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.mongoflink.internal.connection.MongoClientProvider;
 import org.mongoflink.serde.DocumentDeserializer;
 import org.mongoflink.source.enumerator.MongoSplitEnumerator;
@@ -16,11 +9,17 @@ import org.mongoflink.source.split.MongoSplit;
 import org.mongoflink.source.split.MongoSplitSerializer;
 import org.mongoflink.source.split.MongoSplitStrategy;
 
+import org.apache.flink.api.connector.source.Boundedness;
+import org.apache.flink.api.connector.source.Source;
+import org.apache.flink.api.connector.source.SourceReader;
+import org.apache.flink.api.connector.source.SourceReaderContext;
+import org.apache.flink.api.connector.source.SplitEnumerator;
+import org.apache.flink.api.connector.source.SplitEnumeratorContext;
+import org.apache.flink.core.io.SimpleVersionedSerializer;
+
 import java.util.List;
 
-/**
- * MongoSource for bounded scenarios.
- **/
+/** MongoSource for bounded scenarios. */
 public class MongoSource<T> implements Source<T, MongoSplit, List<MongoSplit>> {
 
     private MongoClientProvider clientProvider;
@@ -29,9 +28,10 @@ public class MongoSource<T> implements Source<T, MongoSplit, List<MongoSplit>> {
 
     private MongoSplitStrategy splitStrategy;
 
-    public MongoSource(MongoClientProvider clientProvider,
-                       DocumentDeserializer<T> deserializer,
-                       MongoSplitStrategy splitStrategy) {
+    public MongoSource(
+            MongoClientProvider clientProvider,
+            DocumentDeserializer<T> deserializer,
+            MongoSplitStrategy splitStrategy) {
         this.clientProvider = clientProvider;
         this.deserializer = deserializer;
         this.splitStrategy = splitStrategy;
@@ -43,7 +43,8 @@ public class MongoSource<T> implements Source<T, MongoSplit, List<MongoSplit>> {
     }
 
     @Override
-    public SourceReader<T, MongoSplit> createReader(SourceReaderContext readerContext) throws Exception {
+    public SourceReader<T, MongoSplit> createReader(SourceReaderContext readerContext)
+            throws Exception {
         return new MongoReader<>(readerContext, clientProvider, deserializer);
     }
 
@@ -55,9 +56,10 @@ public class MongoSource<T> implements Source<T, MongoSplit, List<MongoSplit>> {
 
     @Override
     public SplitEnumerator<MongoSplit, List<MongoSplit>> restoreEnumerator(
-            SplitEnumeratorContext<MongoSplit> enumContext,
-            List<MongoSplit> checkpointedSplits) throws Exception {
-        return new MongoSplitEnumerator(enumContext, clientProvider, splitStrategy, checkpointedSplits);
+            SplitEnumeratorContext<MongoSplit> enumContext, List<MongoSplit> checkpointedSplits)
+            throws Exception {
+        return new MongoSplitEnumerator(
+                enumContext, clientProvider, splitStrategy, checkpointedSplits);
     }
 
     @Override

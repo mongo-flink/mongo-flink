@@ -1,14 +1,16 @@
 package org.mongoflink.source.split;
 
-/**
- * The mutable version of mongo split.
- **/
+/** The mutable version of mongo split. */
 public class MongoSplitState extends MongoSplit {
 
     private long currentOffset;
 
     public MongoSplitState(MongoSplit mongoSplit) {
-        super(mongoSplit.splitId(), mongoSplit.getQuery(), mongoSplit.getProjection(), mongoSplit.getStartOffset());
+        super(
+                mongoSplit.splitId(),
+                mongoSplit.getQuery(),
+                mongoSplit.getProjection(),
+                mongoSplit.getStartOffset());
         this.currentOffset = mongoSplit.getStartOffset();
     }
 

@@ -2,9 +2,7 @@ package org.mongoflink.internal.connection;
 
 import org.apache.flink.util.Preconditions;
 
-/**
- * A builder class for creating {@link MongoClientProvider}.
- **/
+/** A builder class for creating {@link MongoClientProvider}. */
 public class MongoColloctionProviders {
 
     public static Builder getBuilder() {

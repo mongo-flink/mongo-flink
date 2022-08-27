@@ -1,11 +1,13 @@
 package org.mongoflink.source.pushdown;
 
-import com.google.common.collect.ImmutableMap;
-import com.mongodb.client.model.Filters;
 import org.apache.flink.table.expressions.*;
 import org.apache.flink.table.functions.BuiltInFunctionDefinitions;
 import org.apache.flink.table.functions.FunctionDefinition;
 import org.apache.flink.util.CollectionUtil;
+
+import com.mongodb.client.model.Filters;
+
+import com.google.common.collect.ImmutableMap;
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
@@ -24,85 +26,79 @@ public class MongoFilters {
 
     private static final ImmutableMap<FunctionDefinition, Function<CallExpression, BsonDocument>>
             FILTERS =
-            new ImmutableMap.Builder<
-                    FunctionDefinition, Function<CallExpression, BsonDocument>>()
-                    .put(BuiltInFunctionDefinitions.IS_NULL, MongoFilters::convertIsNull)
-                    .put(
-                            BuiltInFunctionDefinitions.IS_NOT_NULL,
-                            MongoFilters::convertIsNotNull)
-                    .put(BuiltInFunctionDefinitions.NOT, MongoFilters::convertNot)
-                    .put(BuiltInFunctionDefinitions.OR, MongoFilters::convertOr)
-                    .put(
-                            BuiltInFunctionDefinitions.EQUALS,
-                            call ->
-                                    convertBinary(
-                                            call,
-                                            MongoFilters::convertEquals,
-                                            MongoFilters::convertEquals))
-                    .put(
-                            BuiltInFunctionDefinitions.NOT_EQUALS,
-                            call ->
-                                    convertBinary(
-                                            call,
-                                            MongoFilters::convertNotEquals,
-                                            MongoFilters::convertNotEquals))
-                    .put(
-                            BuiltInFunctionDefinitions.GREATER_THAN,
-                            call ->
-                                    convertBinary(
-                                            call,
-                                            MongoFilters::convertGreaterThan,
-                                            MongoFilters::convertLessThanEquals))
-                    .put(
-                            BuiltInFunctionDefinitions.GREATER_THAN_OR_EQUAL,
-                            call ->
-                                    convertBinary(
-                                            call,
-                                            MongoFilters::convertGreaterThanEquals,
-                                            MongoFilters::convertLessThan))
-                    .put(
-                            BuiltInFunctionDefinitions.LESS_THAN,
-                            call ->
-                                    convertBinary(
-                                            call,
-                                            MongoFilters::convertLessThan,
-                                            MongoFilters::convertGreaterThanEquals))
-                    .put(
-                            BuiltInFunctionDefinitions.LESS_THAN_OR_EQUAL,
-                            call ->
-                                    convertBinary(
-                                            call,
-                                            MongoFilters::convertLessThanEquals,
-                                            MongoFilters::convertGreaterThan))
-                    .build();
+                    new ImmutableMap.Builder<
+                                    FunctionDefinition, Function<CallExpression, BsonDocument>>()
+                            .put(BuiltInFunctionDefinitions.IS_NULL, MongoFilters::convertIsNull)
+                            .put(
+                                    BuiltInFunctionDefinitions.IS_NOT_NULL,
+                                    MongoFilters::convertIsNotNull)
+                            .put(BuiltInFunctionDefinitions.NOT, MongoFilters::convertNot)
+                            .put(BuiltInFunctionDefinitions.OR, MongoFilters::convertOr)
+                            .put(
+                                    BuiltInFunctionDefinitions.EQUALS,
+                                    call ->
+                                            convertBinary(
+                                                    call,
+                                                    MongoFilters::convertEquals,
+                                                    MongoFilters::convertEquals))
+                            .put(
+                                    BuiltInFunctionDefinitions.NOT_EQUALS,
+                                    call ->
+                                            convertBinary(
+                                                    call,
+                                                    MongoFilters::convertNotEquals,
+                                                    MongoFilters::convertNotEquals))
+                            .put(
+                                    BuiltInFunctionDefinitions.GREATER_THAN,
+                                    call ->
+                                            convertBinary(
+                                                    call,
+                                                    MongoFilters::convertGreaterThan,
+                                                    MongoFilters::convertLessThanEquals))
+                            .put(
+                                    BuiltInFunctionDefinitions.GREATER_THAN_OR_EQUAL,
+                                    call ->
+                                            convertBinary(
+                                                    call,
+                                                    MongoFilters::convertGreaterThanEquals,
+                                                    MongoFilters::convertLessThan))
+                            .put(
+                                    BuiltInFunctionDefinitions.LESS_THAN,
+                                    call ->
+                                            convertBinary(
+                                                    call,
+                                                    MongoFilters::convertLessThan,
+                                                    MongoFilters::convertGreaterThanEquals))
+                            .put(
+                                    BuiltInFunctionDefinitions.LESS_THAN_OR_EQUAL,
+                                    call ->
+                                            convertBinary(
+                                                    call,
+                                                    MongoFilters::convertLessThanEquals,
+                                                    MongoFilters::convertGreaterThan))
+                            .build();
 
-    private static BsonDocument convertLessThan(
-            String colName, Serializable literal) {
+    private static BsonDocument convertLessThan(String colName, Serializable literal) {
         return Filters.lt(colName, literal).toBsonDocument();
     }
 
-    private static BsonDocument convertLessThanEquals(
-            String colName, Serializable literal) {
+    private static BsonDocument convertLessThanEquals(String colName, Serializable literal) {
         return Filters.lte(colName, literal).toBsonDocument();
     }
 
-    private static BsonDocument convertGreaterThanEquals(
-            String colName, Serializable literal) {
+    private static BsonDocument convertGreaterThanEquals(String colName, Serializable literal) {
         return Filters.gte(colName, literal).toBsonDocument();
     }
 
-    private static BsonDocument convertGreaterThan(
-            String colName, Serializable literal) {
+    private static BsonDocument convertGreaterThan(String colName, Serializable literal) {
         return Filters.gt(colName, literal).toBsonDocument();
     }
 
-    private static BsonDocument convertNotEquals(
-            String colName, Serializable literal) {
+    private static BsonDocument convertNotEquals(String colName, Serializable literal) {
         return Filters.ne(colName, literal).toBsonDocument();
     }
 
-    private static BsonDocument convertEquals(
-            String colName, Serializable literal) {
+    private static BsonDocument convertEquals(String colName, Serializable literal) {
         return Filters.eq(colName, literal).toBsonDocument();
     }
 
@@ -126,16 +122,15 @@ public class MongoFilters {
     private static BsonDocument convertNot(CallExpression callExp) {
         if (callExp.getChildren().size() != 1) {
             // not a valid predicate
-            LOG.debug(
-                    "Unsupported predicate [{}] cannot be pushed into Mongo.",
-                    callExp);
+            LOG.debug("Unsupported predicate [{}] cannot be pushed into Mongo.", callExp);
             return null;
         }
         Bson bson = toMongoPredicate(callExp.getChildren().get(0));
         if (bson == null) {
             Expression expression = callExp.getChildren().get(0);
             if (expression instanceof FieldReferenceExpression) {
-                FieldReferenceExpression fieldReferenceExpression = (FieldReferenceExpression) expression;
+                FieldReferenceExpression fieldReferenceExpression =
+                        (FieldReferenceExpression) expression;
                 return Filters.eq(fieldReferenceExpression.getName(), false).toBsonDocument();
             }
             return null;
@@ -147,9 +142,7 @@ public class MongoFilters {
     private static BsonDocument convertIsNotNull(CallExpression callExp) {
         if (!isUnaryValid(callExp)) {
             // not a valid predicate
-            LOG.debug(
-                    "Unsupported predicate [{}] cannot be pushed into Mongo.",
-                    callExp);
+            LOG.debug("Unsupported predicate [{}] cannot be pushed into Mongo.", callExp);
             return null;
         }
         String colName = getColumnName(callExp);
@@ -159,9 +152,7 @@ public class MongoFilters {
     private static BsonDocument convertIsNull(CallExpression callExp) {
         if (!isUnaryValid(callExp)) {
             // not a valid predicate
-            LOG.debug(
-                    "Unsupported predicate [{}] cannot be pushed into Mongo.",
-                    callExp);
+            LOG.debug("Unsupported predicate [{}] cannot be pushed into Mongo.", callExp);
             return null;
         }
         String colName = getColumnName(callExp);
@@ -206,7 +197,10 @@ public class MongoFilters {
             CallExpression callExp = (CallExpression) expression;
             if (FILTERS.get(callExp.getFunctionDefinition()) == null) {
                 // unsupported predicate
-                LOG.warn("Unsupported predicate [ " + expression + " ] cannot be pushed into Mongo.");
+                LOG.warn(
+                        "Unsupported predicate [ "
+                                + expression
+                                + " ] cannot be pushed into Mongo.");
                 return null;
             }
             return FILTERS.get(callExp.getFunctionDefinition()).apply(callExp);
@@ -260,9 +254,9 @@ public class MongoFilters {
     private static boolean isBinaryValid(CallExpression callExpression) {
         return callExpression.getChildren().size() == 2
                 && (isRef(callExpression.getChildren().get(0))
-                && isLit(callExpression.getChildren().get(1))
-                || isLit(callExpression.getChildren().get(0))
-                && isRef(callExpression.getChildren().get(1)));
+                                && isLit(callExpression.getChildren().get(1))
+                        || isLit(callExpression.getChildren().get(0))
+                                && isRef(callExpression.getChildren().get(1)));
     }
 
     private static boolean isRef(Expression expression) {
@@ -281,7 +275,8 @@ public class MongoFilters {
         for (ResolvedExpression flinkFilter : flinkFilters) {
             if (!(flinkFilter instanceof CallExpression)) {
                 // unsupported predicate
-                LOG.warn("Unsupported predicate [" + flinkFilter + "] cannot be pushed into Mongo.");
+                LOG.warn(
+                        "Unsupported predicate [" + flinkFilter + "] cannot be pushed into Mongo.");
                 continue;
             }
             CallExpression expression = (CallExpression) flinkFilter;
@@ -295,6 +290,4 @@ public class MongoFilters {
         }
         return Filters.and(allFilters).toBsonDocument();
     }
-
 }
-

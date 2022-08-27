@@ -1,5 +1,7 @@
 package org.mongoflink.sink;
 
+import org.mongoflink.config.MongoOptions;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.runtime.minicluster.MiniCluster;
@@ -7,7 +9,6 @@ import org.apache.flink.runtime.minicluster.MiniClusterConfiguration;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.datagen.DataGeneratorSource;
 import org.apache.flink.streaming.api.graph.StreamGraph;
-import org.mongoflink.config.MongoOptions;
 
 import org.junit.Test;
 
@@ -23,7 +24,8 @@ public class MongoTransactionalSinkTest extends MongoSinkTestBase {
         env.setParallelism(1);
         env.getCheckpointConfig().setCheckpointInterval(1000L);
 
-        // if these rows are not multiple times of rps, there would be the records remaining not flushed
+        // if these rows are not multiple times of rps, there would be the records remaining not
+        // flushed
         // after the last checkpoint
         long rps = 50;
         long rows = 1000L;
@@ -33,8 +35,13 @@ public class MongoTransactionalSinkTest extends MongoSinkTestBase {
         properties.setProperty(MongoOptions.SINK_FLUSH_ON_CHECKPOINT, "true");
         env.addSource(new DataGeneratorSource<>(new StringGenerator(), rps, rows))
                 .returns(String.class)
-                .sinkTo(new MongoSink<>(CONNECT_STRING, DATABASE_NAME, COLLECTION,
-                        new StringDocumentSerializer(), properties));
+                .sinkTo(
+                        new MongoSink<>(
+                                CONNECT_STRING,
+                                DATABASE_NAME,
+                                COLLECTION,
+                                new StringDocumentSerializer(),
+                                properties));
         StreamGraph streamGraph = env.getStreamGraph();
 
         final Configuration config = new Configuration();
@@ -51,6 +58,7 @@ public class MongoTransactionalSinkTest extends MongoSinkTestBase {
             miniCluster.executeJobBlocking(streamGraph.getJobGraph());
         }
 
-        assertEquals(rows, mongo.getDatabase(DATABASE_NAME).getCollection(COLLECTION).countDocuments());
+        assertEquals(
+                rows, mongo.getDatabase(DATABASE_NAME).getCollection(COLLECTION).countDocuments());
     }
 }

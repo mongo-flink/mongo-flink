@@ -1,24 +1,25 @@
 package org.mongoflink.source.enumerator;
 
-import com.google.common.collect.Lists;
-import com.mongodb.MongoNamespace;
-import org.apache.flink.api.connector.source.SplitEnumerator;
-import org.apache.flink.api.connector.source.SplitEnumeratorContext;
 import org.mongoflink.internal.connection.MongoClientProvider;
 import org.mongoflink.source.split.MongoSplit;
 import org.mongoflink.source.split.MongoSplitStrategy;
 
+import org.apache.flink.api.connector.source.SplitEnumerator;
+import org.apache.flink.api.connector.source.SplitEnumeratorContext;
+
+import com.mongodb.MongoNamespace;
+
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * MongoSplitEnumerator generates {@link MongoSplit} according to partition strategies.
- **/
+/** MongoSplitEnumerator generates {@link MongoSplit} according to partition strategies. */
 public class MongoSplitEnumerator implements SplitEnumerator<MongoSplit, List<MongoSplit>> {
 
     private final SplitEnumeratorContext<MongoSplit> context;
@@ -31,16 +32,18 @@ public class MongoSplitEnumerator implements SplitEnumerator<MongoSplit, List<Mo
 
     private static final Logger LOG = LoggerFactory.getLogger(MongoSplitEnumerator.class);
 
-    public MongoSplitEnumerator(SplitEnumeratorContext<MongoSplit> context,
-                                MongoClientProvider clientProvider,
-                                MongoSplitStrategy strategy) {
+    public MongoSplitEnumerator(
+            SplitEnumeratorContext<MongoSplit> context,
+            MongoClientProvider clientProvider,
+            MongoSplitStrategy strategy) {
         this(context, clientProvider, strategy, Collections.emptyList());
     }
 
-    public MongoSplitEnumerator(SplitEnumeratorContext<MongoSplit> context,
-                                MongoClientProvider clientProvider,
-                                MongoSplitStrategy strategy,
-                                List<MongoSplit> splits) {
+    public MongoSplitEnumerator(
+            SplitEnumeratorContext<MongoSplit> context,
+            MongoClientProvider clientProvider,
+            MongoSplitStrategy strategy,
+            List<MongoSplit> splits) {
         this.context = context;
         this.clientProvider = clientProvider;
         this.strategy = strategy;
@@ -52,8 +55,10 @@ public class MongoSplitEnumerator implements SplitEnumerator<MongoSplit, List<Mo
         LOG.info("Starting MongoSplitEnumerator.");
         pendingSplits.addAll(strategy.split());
         MongoNamespace namespace = clientProvider.getDefaultCollection().getNamespace();
-        LOG.info("Added {} pending splits for namespace {}.",
-                pendingSplits.size(), namespace.getFullName());
+        LOG.info(
+                "Added {} pending splits for namespace {}.",
+                pendingSplits.size(),
+                namespace.getFullName());
     }
 
     @Override
@@ -62,7 +67,10 @@ public class MongoSplitEnumerator implements SplitEnumerator<MongoSplit, List<Mo
         if (pendingSplits.size() > 0) {
             MongoSplit nextSplit = pendingSplits.remove(0);
             context.assignSplit(nextSplit, subtaskId);
-            LOG.info("Assigned split {} to subtask {}, remaining splits: {}.", nextSplit.splitId(), subtaskId,
+            LOG.info(
+                    "Assigned split {} to subtask {}, remaining splits: {}.",
+                    nextSplit.splitId(),
+                    subtaskId,
                     pendingSplits.size());
         } else {
             LOG.info("No more splits can be assign, signal subtask {}.", subtaskId);
@@ -89,6 +97,5 @@ public class MongoSplitEnumerator implements SplitEnumerator<MongoSplit, List<Mo
     }
 
     @Override
-    public void close() throws IOException {
-    }
+    public void close() throws IOException {}
 }

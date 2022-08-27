@@ -14,5 +14,4 @@ public enum TimestampFormat {
      * "yyyy-MM-ddTHH:mm:ss.s{precision}'Z'" and output in the same format.
      */
     ISO_8601
-
 }

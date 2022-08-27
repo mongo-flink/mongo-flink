@@ -1,11 +1,12 @@
 package org.mongoflink.source.split;
 
-import com.google.common.collect.Lists;
-import org.bson.Document;
-import org.junit.Test;
 import org.mongoflink.EmbeddedMongoTestBase;
 import org.mongoflink.internal.connection.MongoClientProvider;
 import org.mongoflink.internal.connection.MongoColloctionProviders;
+
+import com.google.common.collect.Lists;
+import org.bson.Document;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.Random;
@@ -21,42 +22,45 @@ public class SamplingSplitStrategyTest extends EmbeddedMongoTestBase {
     @Test
     public void testDefaultSplit() {
 
-        MongoClientProvider clientProvider =  MongoColloctionProviders.getBuilder()
-                .connectionString(CONNECT_STRING)
-                .database(DATABASE_NAME)
-                .collection(COLLECTION).build();
+        MongoClientProvider clientProvider =
+                MongoColloctionProviders.getBuilder()
+                        .connectionString(CONNECT_STRING)
+                        .database(DATABASE_NAME)
+                        .collection(COLLECTION)
+                        .build();
 
         // generate documents
         List<Document> docs = Lists.newArrayList();
         Random random = new Random();
-        for (int i=0;i<10_000;i++) {
+        for (int i = 0; i < 10_000; i++) {
             // roughly 56b per document
             docs.add(
                     new Document()
                             .append("user_id", i + 1)
                             .append("gold", random.nextInt() % 100)
-                            .append("level", random.nextInt() % 255)
-            );
+                            .append("level", random.nextInt() % 255));
         }
 
         clientProvider.getDefaultCollection().insertMany(docs);
 
-        MongoSplitStrategy strategyByObjectId = SamplingSplitStrategy.builder()
-                .setClientProvider(clientProvider)
-                // set 10kb per split to generate more splits
-                .setSizePerSplit(10240)
-                .build();
+        MongoSplitStrategy strategyByObjectId =
+                SamplingSplitStrategy.builder()
+                        .setClientProvider(clientProvider)
+                        // set 10kb per split to generate more splits
+                        .setSizePerSplit(10240)
+                        .build();
 
         List<MongoSplit> splitsByObjectId = strategyByObjectId.split();
 
         assertTrue(splitsByObjectId.size() > 50);
 
-        MongoSplitStrategy strategyByUserId = SamplingSplitStrategy.builder()
-                .setClientProvider(clientProvider)
-                .setSplitKey("user_id")
-                .setMatchQuery(gte("user_id", 1000).toBsonDocument())
-                .setSizePerSplit(10240)
-                .build();
+        MongoSplitStrategy strategyByUserId =
+                SamplingSplitStrategy.builder()
+                        .setClientProvider(clientProvider)
+                        .setSplitKey("user_id")
+                        .setMatchQuery(gte("user_id", 1000).toBsonDocument())
+                        .setSizePerSplit(10240)
+                        .build();
 
         List<MongoSplit> splitsByUserId = strategyByUserId.split();
 

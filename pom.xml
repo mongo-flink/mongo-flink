@@ -53,7 +53,6 @@
         <scala.version>2.12</scala.version>
         <mongo.version>4.4.1</mongo.version>
         <jackson.version>2.13.3</jackson.version>
-
     </properties>
 
     <dependencies>
@@ -205,9 +204,54 @@
                     <artifactId>maven-project-info-reports-plugin</artifactId>
                     <version>3.0.0</version>
                 </plugin>
+                <plugin>
+                    <groupId>com.diffplug.spotless</groupId>
+                    <artifactId>spotless-maven-plugin</artifactId>
+                    <version>2.13.0</version>
+                    <configuration>
+                        <formats>
+                            <format>
+                                <includes>
+                                    <include>*.md</include>
+                                    <include>.gitignore</include>
+                                </includes>
+                                <trimTrailingWhitespace/>
+                                <endWithNewline/>
+                                <indent>
+                                    <tabs>true</tabs>
+                                    <spacesPerTab>4</spacesPerTab>
+                                </indent>
+                            </format>
+                        </formats>
+                        <java>
+                            <googleJavaFormat>
+                                <version>1.7</version>
+                                <style>AOSP</style>
+                            </googleJavaFormat>
+                            <!-- \# refers to the static imports -->
+                            <importOrder>
+                                <order>org.mongoflink,org.apache.flink,org.apache.flink.shaded,com.mongodb,,javax,java,\#</order>
+                            </importOrder>
+                            <removeUnusedImports />
+                        </java>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
 
+        <plugins>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
     <profiles>
         <profile>

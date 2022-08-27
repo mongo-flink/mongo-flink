@@ -3,17 +3,18 @@ package org.mongoflink.sink;
 import org.bson.Document;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * DocumentBulk is buffered {@link Document} in memory, which would be written to MongoDB in a single transaction.
- * Due to execution efficiency, each DocumentBulk maybe be limited to a maximum size, typically 1,000 documents. But
- * for the transactional mode, the maximum size should not be respected because all that data must be written in one
- * transaction.
- **/
+ * DocumentBulk is buffered {@link Document} in memory, which would be written to MongoDB in a
+ * single transaction. Due to execution efficiency, each DocumentBulk maybe be limited to a maximum
+ * size, typically 1,000 documents. But for the transactional mode, the maximum size should not be
+ * respected because all that data must be written in one transaction.
+ */
 @NotThreadSafe
 class DocumentBulk implements Serializable {
 
@@ -54,10 +55,12 @@ class DocumentBulk implements Serializable {
 
     @Override
     public String toString() {
-        return "DocumentBulk{" +
-                "bufferedDocuments=" + bufferedDocuments +
-                ", maxSize=" + maxSize +
-                '}';
+        return "DocumentBulk{"
+                + "bufferedDocuments="
+                + bufferedDocuments
+                + ", maxSize="
+                + maxSize
+                + '}';
     }
 
     @Override
@@ -69,8 +72,7 @@ class DocumentBulk implements Serializable {
             return false;
         }
         DocumentBulk bulk = (DocumentBulk) o;
-        return maxSize == bulk.maxSize &&
-                Objects.equals(bufferedDocuments, bulk.bufferedDocuments);
+        return maxSize == bulk.maxSize && Objects.equals(bufferedDocuments, bulk.bufferedDocuments);
     }
 
     @Override

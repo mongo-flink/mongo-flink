@@ -1,8 +1,9 @@
 package org.mongoflink.source.split;
 
-import com.google.common.collect.Lists;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.util.Preconditions;
+
+import com.google.common.collect.Lists;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,9 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 
-/**
- * Simple serializer for a list of {@link MongoSplit}.
- **/
+/** Simple serializer for a list of {@link MongoSplit}. */
 public class ListMongoSplitSerializer implements SimpleVersionedSerializer<List<MongoSplit>> {
 
     // the version must be the same with MongoSplitSerializer
@@ -30,16 +29,19 @@ public class ListMongoSplitSerializer implements SimpleVersionedSerializer<List<
     @Override
     public byte[] serialize(List<MongoSplit> list) throws IOException {
 
-        Preconditions.checkArgument(MongoSplitSerializer.INSTANCE.getVersion() == VERSION,
-                "ListMongoSplitSerializer is not compatible with MongoSplitSerializer. " +
-                        "ListMongoSplitSerializer version: " + VERSION +
-                        ", MongoSplitSerializer version: " + MongoSplitSerializer.INSTANCE.getVersion());
+        Preconditions.checkArgument(
+                MongoSplitSerializer.INSTANCE.getVersion() == VERSION,
+                "ListMongoSplitSerializer is not compatible with MongoSplitSerializer. "
+                        + "ListMongoSplitSerializer version: "
+                        + VERSION
+                        + ", MongoSplitSerializer version: "
+                        + MongoSplitSerializer.INSTANCE.getVersion());
 
         int size = list.size();
 
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
         ByteBuffer intBuf = ByteBuffer.allocate(4);
-        for(MongoSplit split: list) {
+        for (MongoSplit split : list) {
             byte[] splitBytes = MongoSplitSerializer.INSTANCE.serialize(split);
             intBuf.clear();
             intBuf.putInt(splitBytes.length);
@@ -48,7 +50,7 @@ public class ListMongoSplitSerializer implements SimpleVersionedSerializer<List<
         }
         byte[] listBytes = bytesOut.toByteArray();
 
-        byte[] targetBytes = new byte[8 + 4* size + listBytes.length];
+        byte[] targetBytes = new byte[8 + 4 * size + listBytes.length];
 
         ByteBuffer bb = ByteBuffer.wrap(targetBytes).order(ByteOrder.LITTLE_ENDIAN);
         bb.putInt(MAGIC_NUMBER);
@@ -78,7 +80,7 @@ public class ListMongoSplitSerializer implements SimpleVersionedSerializer<List<
         final int size = bb.getInt();
         List<MongoSplit> splits = Lists.newArrayListWithCapacity(size);
 
-        for (int i=0;i<size;i++) {
+        for (int i = 0; i < size; i++) {
             int splitLen = bb.getInt();
             byte[] splitBytes = new byte[splitLen];
             bb.get(splitBytes);

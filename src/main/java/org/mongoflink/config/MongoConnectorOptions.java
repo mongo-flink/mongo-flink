@@ -3,9 +3,7 @@ package org.mongoflink.config;
 import java.io.Serializable;
 import java.time.Duration;
 
-/**
- * MongoDB connector options.
- */
+/** MongoDB connector options. */
 public class MongoConnectorOptions implements Serializable {
 
     private static final long serialVersionUID = 1;
@@ -21,16 +19,17 @@ public class MongoConnectorOptions implements Serializable {
     protected final boolean upsertEnable;
     protected final String[] upsertKey;
 
-    public MongoConnectorOptions(String connectString,
-                                 String database,
-                                 String collection,
-                                 boolean transactionEnable,
-                                 boolean flushOnCheckpoint,
-                                 int flushSize,
-                                 Duration flushInterval,
-                                 int maxBufferedBatches,
-                                 boolean upsertEnable,
-                                 String[] upsertKey) {
+    public MongoConnectorOptions(
+            String connectString,
+            String database,
+            String collection,
+            boolean transactionEnable,
+            boolean flushOnCheckpoint,
+            int flushSize,
+            Duration flushInterval,
+            int maxBufferedBatches,
+            boolean upsertEnable,
+            String[] upsertKey) {
         this.connectString = connectString;
         this.database = database;
         this.collection = collection;
@@ -87,9 +86,7 @@ public class MongoConnectorOptions implements Serializable {
         return new Builder();
     }
 
-    /**
-     * Builder For {@link MongoConnectorOptions}.
-     */
+    /** Builder For {@link MongoConnectorOptions}. */
     public static class Builder {
         protected String connectString;
         protected String database;
@@ -168,4 +165,3 @@ public class MongoConnectorOptions implements Serializable {
         }
     }
 }
-

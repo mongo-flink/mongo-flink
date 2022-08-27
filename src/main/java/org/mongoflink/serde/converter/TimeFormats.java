@@ -63,5 +63,4 @@ public class TimeFormats {
                     .toFormatter();
 
     private TimeFormats() {}
-
 }

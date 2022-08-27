@@ -1,24 +1,26 @@
 package org.mongoflink.sink;
 
-import com.mongodb.MongoException;
-import com.mongodb.client.MongoCollection;
-
-import com.mongodb.client.model.BulkWriteOptions;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.UpdateOneModel;
-import com.mongodb.client.model.UpdateOptions;
-import org.apache.flink.api.connector.sink.SinkWriter;
-import org.apache.flink.util.concurrent.ExecutorThreadFactory;
-import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.mongoflink.config.MongoConnectorOptions;
 import org.mongoflink.internal.connection.MongoClientProvider;
 import org.mongoflink.serde.DocumentSerializer;
 
+import org.apache.flink.api.connector.sink.SinkWriter;
+import org.apache.flink.util.concurrent.ExecutorThreadFactory;
+
+import com.mongodb.MongoException;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.BulkWriteOptions;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.UpdateOptions;
+
+import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -26,9 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
 
-/**
- * Writer for MongoDB sink.
- **/
+/** Writer for MongoDB sink. */
 public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, DocumentBulk> {
 
     private final MongoClientProvider collectionProvider;
@@ -64,9 +64,10 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
     private final boolean upsertEnable;
     private final String[] upsertKeys;
 
-    public MongoBulkWriter(MongoClientProvider collectionProvider,
-                           DocumentSerializer<IN> serializer,
-                           MongoConnectorOptions options) {
+    public MongoBulkWriter(
+            MongoClientProvider collectionProvider,
+            DocumentSerializer<IN> serializer,
+            MongoConnectorOptions options) {
         this.upsertEnable = options.isUpsertEnable();
         this.upsertKeys = options.getUpsertKey();
         this.collectionProvider = collectionProvider;
@@ -131,7 +132,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
         synchronized (this) {
             DocumentBulk bulk = new DocumentBulk();
-            for (Document document: currentBulk) {
+            for (Document document : currentBulk) {
                 bulk.add(document);
             }
             inProgressAndPendingBulks.add(bulk);
@@ -165,17 +166,18 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
             scheduler.shutdown();
         }
 
-        if(collectionProvider != null) {
+        if (collectionProvider != null) {
             collectionProvider.close();
         }
     }
 
     /**
-     * Flush by non-transactional bulk write, which may result in data duplicates after multiple tries.
-     * There may be concurrent flushes when concurrent checkpoints are enabled.
-     * <p>
-     * We manually retry write operations, because the driver doesn't support automatic retries for some MongoDB
-     * setups (e.g. standalone instances). TODO: This should be configurable in the future.
+     * Flush by non-transactional bulk write, which may result in data duplicates after multiple
+     * tries. There may be concurrent flushes when concurrent checkpoints are enabled.
+     *
+     * <p>We manually retry write operations, because the driver doesn't support automatic retries
+     * for some MongoDB setups (e.g. standalone instances). TODO: This should be configurable in the
+     * future.
      */
     private synchronized void flush() {
         if (!closed) {
@@ -227,7 +229,8 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
                             Document update = new Document();
                             update.append("$set", document);
                             Bson filter = Filters.and(filters);
-                            UpdateOneModel<Document> updateOneModel = new UpdateOneModel<>(filter, update, updateOptions);
+                            UpdateOneModel<Document> updateOneModel =
+                                    new UpdateOneModel<>(filter, update, updateOptions);
                             upserts.add(updateOneModel);
                         }
                         collection.bulkWrite(upserts, bulkWriteOptions);
@@ -261,7 +264,7 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
         if (force || size >= maxSize) {
             DocumentBulk bulk = new DocumentBulk(maxSize);
-            for (int i=0;i<size;i++) {
+            for (int i = 0; i < size; i++) {
                 if (bulk.size() >= maxSize) {
                     pendingBulks.add(bulk);
                     bulk = new DocumentBulk(maxSize);

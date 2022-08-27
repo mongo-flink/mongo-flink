@@ -1,5 +1,5 @@
 # MongoFlink
-MongoFlink is a connector between MongoDB and Apache Flink. It acts as a Flink sink (and an experimental Flink bounded 
+MongoFlink is a connector between MongoDB and Apache Flink. It acts as a Flink sink (and an experimental Flink bounded
 source), and provides transaction mode(which ensures exactly-once semantics) for MongoDB 4.2 above, and non-transaction
 mode for MongoDB 3.0 above.
 
@@ -18,9 +18,9 @@ For Maven users, add the following dependency in your project's pom.xml.
 
 ```
 <dependency>
-    <groupId>org.mongoflink</groupId>
-    <artifactId>mongo-flink</artifactId>
-    <version>0.3</version>
+	<groupId>org.mongoflink</groupId>
+	<artifactId>mongo-flink</artifactId>
+	<version>0.3</version>
 </dependency>
 ```
 
@@ -44,43 +44,43 @@ section below.
 Use MongoSink in your Flink DataStream application.
 
 ```java
-    StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+	StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-    // non-transactional sink with a flush strategy of 1000 documents or 10 seconds
-    MongoConnectorOptions options = MongoConnectorOptions.builder()
-        .withDatabase("my_db")
-        .withCollection("my_collection")
-        .withConnectString("mongodb://user:password@127.0.0.1:27017")
-        .withTransactionEnable(false)
-        .withFlushOnCheckpoint(false)
-        .withFlushSize(1_000L)
-        .withFlushInterval(Duration.ofSeconds(10))
-        .build();
+	// non-transactional sink with a flush strategy of 1000 documents or 10 seconds
+	MongoConnectorOptions options = MongoConnectorOptions.builder()
+		.withDatabase("my_db")
+		.withCollection("my_collection")
+		.withConnectString("mongodb://user:password@127.0.0.1:27017")
+		.withTransactionEnable(false)
+		.withFlushOnCheckpoint(false)
+		.withFlushSize(1_000L)
+		.withFlushInterval(Duration.ofSeconds(10))
+		.build();
 
-    env.addSource(...)
-       .sinkTo(new MongoSink<>(new StringDocumentSerializer(), options));
+	env.addSource(...)
+	.sinkTo(new MongoSink<>(new StringDocumentSerializer(), options));
 
-    env.execute();
+	env.execute();
 ```
 
 Use MongoSink in your Flink Table/SQL application.
 
 ```java
-    TableEnvironment env = TableEnvironment.create(EnvironmentSettings.inStreamingMode());
+	TableEnvironment env = TableEnvironment.create(EnvironmentSettings.inStreamingMode());
 
-    env.executeSql("create table tbl_user_gold (" +
-            "    user_id long," +
-            "    gold long," +
-            "    PRIMARY key(user_id) NOT ENFORCED" +
-            ") with (" +
-            "    'connector'='mongo'," +
-            "    'connect_string' = 'mongodb://user:password@127.0.0.1:27017'," +
-            "    'database' = 'mydb'," +
-            "    'collection' = 'user_gold'" +
-            ")"
+	env.executeSql("create table tbl_user_gold (" +
+			"    user_id long," +
+			"    gold long," +
+			"    PRIMARY key(user_id) NOT ENFORCED" +
+			") with (" +
+			"    'connector'='mongo'," +
+			"    'connect_string' = 'mongodb://user:password@127.0.0.1:27017'," +
+			"    'database' = 'mydb'," +
+			"    'collection' = 'user_gold'" +
+			")"
 
-    Table userGold = env.executeQuery("select * from tbl_user_gold");
-    );
+	Table userGold = env.executeQuery("select * from tbl_user_gold");
+	);
 ```
 
 # Configuration
@@ -88,7 +88,7 @@ Use MongoSink in your Flink Table/SQL application.
 MongoFlink can be configured using `MongoConnectorOptions` or properties (deprecated).
 
 ## MongoSink
- 
+
 | option                                  | properties key           | description                                                                                 | default value |
 |-----------------------------------------|--------------------------|---------------------------------------------------------------------------------------------|--------------|
 | MongoConnectorOptions.transactionEnable | sink.transaction.enable  | Whether to use transactions in MongoSink (requires MongoDB 4.2+).                           | false        |

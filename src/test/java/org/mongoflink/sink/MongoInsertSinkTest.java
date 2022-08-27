@@ -1,5 +1,7 @@
 package org.mongoflink.sink;
 
+import org.mongoflink.config.MongoOptions;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.runtime.minicluster.MiniCluster;
@@ -7,17 +9,15 @@ import org.apache.flink.runtime.minicluster.MiniClusterConfiguration;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.datagen.DataGeneratorSource;
 import org.apache.flink.streaming.api.graph.StreamGraph;
+
 import org.junit.Test;
-import org.mongoflink.config.MongoOptions;
 
 import java.util.Properties;
 
 import static org.junit.Assert.*;
 
-/**
- * Tests for MongoSink insert mode.
- **/
-public class MongoInsertSinkTest extends  MongoSinkTestBase {
+/** Tests for MongoSink insert mode. */
+public class MongoInsertSinkTest extends MongoSinkTestBase {
 
     @Test
     public void testWrite() throws Exception {
@@ -25,7 +25,8 @@ public class MongoInsertSinkTest extends  MongoSinkTestBase {
         env.setParallelism(1);
         env.getCheckpointConfig().setCheckpointInterval(1000L);
 
-        // if these rows are not multiple times of rps, there would be the records remaining not flushed
+        // if these rows are not multiple times of rps, there would be the records remaining not
+        // flushed
         // after the last checkpoint
         long rps = 50;
         long rows = 1000L;
@@ -38,8 +39,13 @@ public class MongoInsertSinkTest extends  MongoSinkTestBase {
 
         env.addSource(new DataGeneratorSource<>(new StringGenerator(), rps, rows))
                 .returns(String.class)
-                .sinkTo(new MongoSink<>(CONNECT_STRING, DATABASE_NAME, COLLECTION,
-                        new StringDocumentSerializer(), properties));
+                .sinkTo(
+                        new MongoSink<>(
+                                CONNECT_STRING,
+                                DATABASE_NAME,
+                                COLLECTION,
+                                new StringDocumentSerializer(),
+                                properties));
         StreamGraph streamGraph = env.getStreamGraph();
 
         final Configuration config = new Configuration();
