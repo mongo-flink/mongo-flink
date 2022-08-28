@@ -102,12 +102,24 @@ in Table/SQL API.
 
 # Data Types
 
-MongoFlink internally converts row data into json format and then bson format internally, so its data type mapping is
-the same as [json format](https://nightlies.apache.org/flink/flink-docs-stable/docs/connectors/table/formats/json/#data-type-mapping).
+MongoFlink internally converts row data into bson format internally, so its data type mapping is
+similar to [json format](https://nightlies.apache.org/flink/flink-docs-stable/docs/connectors/table/formats/json/#data-type-mapping).
 
-| Flink SQL Data Type | MongoDB Data Type |
-|---|---|
-| NULL
+| Flink SQL Data Type      | MongoDB Data Type |
+|--------------------------|-----------------|
+| NULL                     | BsonNull        |
+| BOOLEAN                  | BsonBoolean     |
+| STRING/VARCHAR/CHAR          | BsonString      |
+| INTEGER/SMALLINT/TINYINT | BsonInt32       |
+| BIGINT/INTERVAL_DAY_TIME | BsonInt64       |
+| FLOAT/DOUBLE             | BsonDouble      |
+| BINARY/VARBINARY | BsonBinary      |
+| DATE | BsonInt64       |
+| TIMESTAMP_WITHOUT_TIME_ZONE/TIMESTAMP_WITH_LOCAL_TIME_ZONE | BsonDateTime    |
+| DECIMAL | BsonDecimal128  |
+| ARRAY | BsonArray       |
+| MAP | BsonDocument    |
+| ROW | BsonDocument    |
 
 # Build from source
 
