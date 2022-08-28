@@ -1,7 +1,4 @@
-package org.mongoflink.serde.table;
-
-import org.mongoflink.serde.DocumentDeserializer;
-import org.mongoflink.serde.converter.BsonToRowDataConverters;
+package org.mongoflink.serde;
 
 import org.apache.flink.table.data.*;
 import org.apache.flink.table.types.DataType;

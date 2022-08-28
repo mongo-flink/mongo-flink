@@ -1,4 +1,4 @@
-package org.mongoflink.serde.converter;
+package org.mongoflink.serde;
 
 import org.apache.flink.table.data.*;
 import org.apache.flink.table.types.logical.*;

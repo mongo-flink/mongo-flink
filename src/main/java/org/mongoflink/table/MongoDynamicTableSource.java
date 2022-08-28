@@ -2,7 +2,7 @@ package org.mongoflink.table;
 
 import org.mongoflink.internal.connection.MongoClientProvider;
 import org.mongoflink.internal.connection.MongoColloctionProviders;
-import org.mongoflink.serde.table.DocumentRowDataDeserializer;
+import org.mongoflink.serde.DocumentRowDataDeserializer;
 import org.mongoflink.source.MongoSource;
 import org.mongoflink.source.pushdown.MongoFilters;
 import org.mongoflink.source.split.SamplingSplitStrategy;

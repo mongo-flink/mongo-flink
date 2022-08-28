@@ -2,7 +2,7 @@ package org.mongoflink.table;
 
 import org.mongoflink.config.MongoConnectorOptions;
 import org.mongoflink.serde.DocumentSerializer;
-import org.mongoflink.serde.table.RowDataDocumentSerializer;
+import org.mongoflink.serde.RowDataDocumentSerializer;
 import org.mongoflink.sink.MongoSink;
 
 import org.apache.flink.table.catalog.ResolvedSchema;
