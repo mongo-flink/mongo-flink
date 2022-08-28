@@ -6,18 +6,20 @@ import org.mongoflink.internal.connection.MongoColloctionProviders;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.TableResult;
-import org.apache.flink.types.Row;
-import org.apache.flink.util.CloseableIterator;
-import org.apache.flink.util.CollectionUtil;
+
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
 
 import com.google.common.collect.Lists;
 import org.bson.Document;
-import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+
+import static com.mongodb.client.model.Sorts.ascending;
+import static org.junit.Assert.*;
 
 public class MongoTableInsertSinkTest extends MongoSinkTestBase {
 
@@ -39,31 +41,34 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
         List<Document> sourceDocs = Lists.newArrayList();
 
         for (int i = 0; i < 10; i++) {
-
+            // generate list field
+            List<String> hobbies = new ArrayList<>(3);
+            hobbies.add(HOBBIES.get(i % HOBBIES.size()));
+            // generate object field
             sourceDocs.add(
                     new Document()
-                            .append("user_id", i)
-                            .append("gold", i)
+                            .append("user_id", (long) i)
+                            .append("gold", (double) i)
                             .append("level", i)
                             .append("grade", "grade" + (i))
                             .append("class", "class" + i)
-                            .append("score", (i) / 1.5)
-                            .append("sex", (i) % 2 == 0)
-                            .append("hobby", (i) % 10 == 0 ? "football" : null));
+                            .append("score", (i) / 1.5F)
+                            .append("vip", (i) % 2 == 0)
+                            .append("hobbies", hobbies));
         }
         clientProviderSource.getDefaultCollection().insertMany(sourceDocs);
 
         TableEnvironment env = TableEnvironment.create(EnvironmentSettings.inBatchMode());
         env.executeSql(
                 "create table mongo_test_source ("
-                        + "    user_id int,"
-                        + "    gold int,"
+                        + "    user_id bigint,"
+                        + "    gold double,"
                         + "    level int,"
                         + "    grade string,"
                         + "    class string,"
-                        + "    score double,"
-                        + "    sex boolean,"
-                        + "    hobby string"
+                        + "    score float,"
+                        + "    vip boolean,"
+                        + "    hobbies array<string>"
                         + ") with ("
                         + "    'connector'='mongo',"
                         + "    'connect_string' = '"
@@ -77,18 +82,16 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                         + "'"
                         + ")");
 
-        // primary key for upsert.
-
         env.executeSql(
                 "create table mongo_test_sink ("
-                        + "    user_id int,"
-                        + "    gold int,"
+                        + "    user_id bigint,"
+                        + "    gold double,"
                         + "    level int,"
                         + "    grade string,"
                         + "    class string,"
-                        + "    score double,"
-                        + "    sex boolean,"
-                        + "    hobby string"
+                        + "    score float,"
+                        + "    vip boolean,"
+                        + "    hobbies array<string>"
                         + ") with ("
                         + "    'connector'='mongo',"
                         + "    'connect_string' = '"
@@ -106,36 +109,30 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                 env.executeSql("insert into mongo_test_sink select * from mongo_test_source");
         tableResult.await();
 
-        env.executeSql(
-                "create table mongo_test_source_1 ("
-                        + "    user_id int,"
-                        + "    gold int,"
-                        + "    level int,"
-                        + "    grade string,"
-                        + "    class string,"
-                        + "    score double,"
-                        + "    sex boolean,"
-                        + "    hobby string"
-                        + ") with ("
-                        + "    'connector'='mongo',"
-                        + "    'connect_string' = '"
-                        + CONNECT_STRING
-                        + "',"
-                        + "    'database' = '"
-                        + DATABASE_NAME
-                        + "',"
-                        + "    'collection' = '"
-                        + SINK_COLLECTION
-                        + "'"
-                        + ")");
+        MongoClientProvider resultClientProvider =
+                MongoColloctionProviders.getBuilder()
+                        .connectionString(CONNECT_STRING)
+                        .database(DATABASE_NAME)
+                        .collection(SINK_COLLECTION)
+                        .build();
 
-        CloseableIterator<Row> collected =
-                env.executeSql("select level from mongo_test_source_1 where user_id = 0").collect();
-        List<String> result =
-                CollectionUtil.iteratorToList(collected).stream()
-                        .map(Row::toString)
-                        .sorted()
-                        .collect(Collectors.toList());
-        Assert.assertEquals("insert failed.", "+I[0]", result.get(0));
+        FindIterable<Document> resultIterable =
+                resultClientProvider.getDefaultCollection().find().sort(ascending("user_id"));
+        List<Document> resultDocs = Lists.newArrayList();
+        try (MongoCursor<Document> cursor = resultIterable.cursor()) {
+            while (cursor.hasNext()) {
+                Document resultDoc = cursor.next();
+                resultDoc.remove("_id");
+                resultDocs.add(resultDoc);
+            }
+        }
+
+        // compare in json format because float point numbers would not equal
+        assertArrayEquals(
+                sourceDocs.stream().peek(d -> d.remove("_id")).map(Document::toJson).toArray(),
+                resultDocs.stream().map(Document::toJson).toArray());
     }
+
+    private final List<String> HOBBIES =
+            Lists.newArrayList("football", "baseball", "swimming", "hockey", null);
 }

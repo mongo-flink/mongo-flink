@@ -100,6 +100,14 @@ in Table/SQL API.
 | MongoConnectorOptions.upsertEnable | (true if the table has primary keys)        | Whether to write documents via upsert mode.                                                    | false        |
 | MongoConnectorOptions.upsertKey | (derived automatically from the primary key) | The primary keys for upsert. Only valid in upsert mode. Keys are in csv format for properties. | []           |
 
+# Data Types
+
+MongoFlink internally converts row data into json format and then bson format internally, so its data type mapping is
+the same as [json format](https://nightlies.apache.org/flink/flink-docs-stable/docs/connectors/table/formats/json/#data-type-mapping).
+
+| Flink SQL Data Type | MongoDB Data Type |
+|---|---|
+| NULL
 
 # Build from source
 

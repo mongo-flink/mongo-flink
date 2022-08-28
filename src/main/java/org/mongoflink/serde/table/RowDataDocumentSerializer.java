@@ -1,43 +1,39 @@
 package org.mongoflink.serde.table;
 
 import org.mongoflink.serde.DocumentSerializer;
-import org.mongoflink.serde.converter.JsonFormatOptions;
-import org.mongoflink.serde.converter.RowDataToJsonConverters;
-import org.mongoflink.serde.converter.TimestampFormat;
+import org.mongoflink.serde.converter.RowDataToBsonConverters;
 
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.LogicalType;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.bson.BsonDocument;
+import org.bson.BsonDocumentReader;
 import org.bson.Document;
+import org.bson.codecs.DecoderContext;
+import org.bson.codecs.DocumentCodec;
 
 /** convert rowdata to document. */
 public class RowDataDocumentSerializer implements DocumentSerializer<RowData> {
 
-    private final RowDataToJsonConverters.RowDataToJsonConverter jsonConverter;
+    private final RowDataToBsonConverters.RowDataToBsonConverter bsonConverter;
 
-    private transient ObjectNode node;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private transient BsonDocument node;
 
     public RowDataDocumentSerializer(LogicalType logicalType) {
-        this.jsonConverter =
-                new RowDataToJsonConverters(
-                                TimestampFormat.SQL, JsonFormatOptions.MapNullKeyMode.LITERAL, null)
-                        .createConverter(logicalType);
+        this.bsonConverter = new RowDataToBsonConverters().createConverter(logicalType);
     }
 
     @Override
     public Document serialize(RowData row) {
         if (node == null) {
-            node = mapper.createObjectNode();
+            node = new BsonDocument();
         }
         try {
-            jsonConverter.convert(mapper, node, row);
-            String s = mapper.writeValueAsString(node);
-            return Document.parse(s);
-        } catch (JsonProcessingException e) {
+            bsonConverter.convert(node, row);
+            DocumentCodec codec = new DocumentCodec();
+            DecoderContext decoderContext = DecoderContext.builder().build();
+            return codec.decode(new BsonDocumentReader(node), decoderContext);
+        } catch (Exception e) {
             throw new RuntimeException("can not serialize row '" + row + "'. ", e);
         }
     }
