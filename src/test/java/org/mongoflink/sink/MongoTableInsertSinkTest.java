@@ -51,7 +51,6 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                             .append("gold", (double) i)
                             .append("level", i)
                             .append("grade", "grade" + (i))
-                            .append("class", "class" + i)
                             .append("score", (i) / 1.5F)
                             .append("vip", (i) % 2 == 0)
                             .append("hobbies", hobbies));
@@ -65,7 +64,6 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                         + "    gold double,"
                         + "    level int,"
                         + "    grade string,"
-                        + "    class string,"
                         + "    score float,"
                         + "    vip boolean,"
                         + "    hobbies array<string>"
@@ -88,7 +86,6 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                         + "    gold double,"
                         + "    level int,"
                         + "    grade string,"
-                        + "    class string,"
                         + "    score float,"
                         + "    vip boolean,"
                         + "    hobbies array<string>"
