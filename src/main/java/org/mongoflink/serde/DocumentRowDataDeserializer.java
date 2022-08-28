@@ -2,7 +2,6 @@ package org.mongoflink.serde;
 
 import org.apache.flink.table.data.*;
 import org.apache.flink.table.types.DataType;
-import org.apache.flink.table.types.logical.LogicalType;
 
 import org.bson.*;
 
@@ -43,7 +42,6 @@ public class DocumentRowDataDeserializer implements DocumentDeserializer<RowData
             String fieldName = this.fieldNames[i];
             Object o = document.get(fieldName);
             DataType dataType = dataTypes[i];
-            LogicalType fieldType = dataType.getLogicalType();
             rowData.setField(
                     i, bsonConverters.createConverter(dataType.getLogicalType()).convert(null, o));
         }
