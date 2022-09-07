@@ -45,6 +45,9 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
             List<String> hobbies = new ArrayList<>(3);
             hobbies.add(HOBBIES.get(i % HOBBIES.size()));
             // generate object field
+            Document tags = new Document();
+            tags.put("k1", "v1");
+            tags.put("k2", "v2");
             sourceDocs.add(
                     new Document()
                             .append("user_id", (long) i)
@@ -53,7 +56,8 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                             .append("grade", "grade" + (i))
                             .append("score", (i) / 1.5F)
                             .append("vip", (i) % 2 == 0)
-                            .append("hobbies", hobbies));
+                            .append("hobbies", hobbies)
+                            .append("tags", tags));
         }
         clientProviderSource.getDefaultCollection().insertMany(sourceDocs);
 
@@ -66,7 +70,8 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                         + "    grade string,"
                         + "    score float,"
                         + "    vip boolean,"
-                        + "    hobbies array<string>"
+                        + "    hobbies array<string>,"
+                        + "    tags map<string, string>"
                         + ") with ("
                         + "    'connector'='mongo',"
                         + "    'connect_string' = '"
@@ -88,7 +93,8 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                         + "    grade string,"
                         + "    score float,"
                         + "    vip boolean,"
-                        + "    hobbies array<string>"
+                        + "    hobbies array<string>,"
+                        + "    tags map<string, string>"
                         + ") with ("
                         + "    'connector'='mongo',"
                         + "    'connect_string' = '"

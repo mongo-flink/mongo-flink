@@ -133,7 +133,7 @@ public class RowDataToBsonConverters implements Serializable {
 
     private RowDataToBsonConverter createMapConverter(
             String typeSummary, LogicalType keyType, LogicalType valueType) {
-        if (keyType.getTypeRoot().getFamilies().contains(LogicalTypeFamily.CHARACTER_STRING)) {
+        if (!keyType.getTypeRoot().getFamilies().contains(LogicalTypeFamily.CHARACTER_STRING)) {
             throw new UnsupportedOperationException(
                     "JSON format doesn't support non-string as key type of map. The type is: "
                             + typeSummary);
