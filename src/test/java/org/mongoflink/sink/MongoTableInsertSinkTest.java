@@ -11,9 +11,11 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 
 import com.google.common.collect.Lists;
+import org.bson.BsonDateTime;
 import org.bson.Document;
 import org.junit.Test;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -56,6 +58,10 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                             .append("grade", "grade" + (i))
                             .append("score", (i) / 1.5F)
                             .append("vip", (i) % 2 == 0)
+                            .append("last_login_date", (int) LocalDate.now().toEpochDay())
+                            .append(
+                                    "last_login_timestamp",
+                                    new BsonDateTime(System.currentTimeMillis()))
                             .append("hobbies", hobbies)
                             .append("tags", tags));
         }
@@ -70,6 +76,8 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                         + "    grade string,"
                         + "    score float,"
                         + "    vip boolean,"
+                        + "    last_login_date date,"
+                        + "    last_login_timestamp timestamp,"
                         + "    hobbies array<string>,"
                         + "    tags map<string, string>"
                         + ") with ("
@@ -93,6 +101,8 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                         + "    grade string,"
                         + "    score float,"
                         + "    vip boolean,"
+                        + "    last_login_date date,"
+                        + "    last_login_timestamp timestamp,"
                         + "    hobbies array<string>,"
                         + "    tags map<string, string>"
                         + ") with ("

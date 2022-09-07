@@ -6,13 +6,9 @@ import org.apache.flink.types.RowKind;
 
 import org.bson.*;
 import org.bson.types.Binary;
-import org.bson.types.Decimal128;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.*;
 
 public class BsonToRowDataConverters implements Serializable {
@@ -83,26 +79,21 @@ public class BsonToRowDataConverters implements Serializable {
         }
     }
 
-    private BsonToRowDataConverter createDecimalConverter() {
-        return (reuse, value) -> {
-            BigDecimal bd = ((DecimalData) value).toBigDecimal();
-            return new BsonDecimal128(new Decimal128(bd));
-        };
-    }
-
     private BsonToRowDataConverter createDateConverter() {
-        return (reuse, value) -> {
-            ZonedDateTime date = Instant.ofEpochMilli((Long) value).atZone(ZoneId.systemDefault());
-            return date.toLocalDate().toEpochDay();
-        };
+        return (reuse, value) -> value;
     }
 
     private BsonToRowDataConverter createTimestampConverter() {
-        return (reuse, value) -> TimestampData.fromEpochMillis((Long) value);
+        return (reuse, value) -> TimestampData.fromEpochMillis(((Date) value).getTime());
     }
 
     private BsonToRowDataConverter createTimestampWithLocalZone() {
-        return (reuse, value) -> TimestampData.fromEpochMillis((Long) value);
+        return (reuse, value) -> {
+            long epochMillis = ((Date) value).getTime();
+            // adjust to local zone by subtracting the zone offset
+            int offsetSeconds = ZoneOffset.of(ZoneId.systemDefault().getId()).getTotalSeconds();
+            return TimestampData.fromEpochMillis(epochMillis - offsetSeconds * 1000L);
+        };
     }
 
     private BsonToRowDataConverter createArrayConverter(ArrayType type) {

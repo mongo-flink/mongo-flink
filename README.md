@@ -109,17 +109,18 @@ similar to [json format](https://nightlies.apache.org/flink/flink-docs-stable/do
 |--------------------------|-----------------|
 | NULL                     | BsonNull        |
 | BOOLEAN                  | BsonBoolean     |
-| STRING/VARCHAR/CHAR          | BsonString      |
+| STRING/VARCHAR/CHAR      | BsonString      |
 | INTEGER/SMALLINT/TINYINT | BsonInt32       |
 | BIGINT/INTERVAL_DAY_TIME | BsonInt64       |
 | FLOAT/DOUBLE             | BsonDouble      |
-| BINARY/VARBINARY | BsonBinary      |
-| DATE | BsonInt64       |
-| TIMESTAMP_WITHOUT_TIME_ZONE/TIMESTAMP_WITH_LOCAL_TIME_ZONE | BsonDateTime    |
-| DECIMAL | BsonDecimal128  |
-| ARRAY | BsonArray       |
-| MAP | BsonDocument    |
-| ROW | BsonDocument    |
+| BINARY/VARBINARY         | BsonBinary      |
+| DATE                     | BsonInt32       |
+| TIMESTAMP(3)             | BsonDateTime    |
+| TIMESTAMP_LTZ(3)         | BsonDateTime    |
+| DECIMAL                  | BsonDecimal128  |
+| ARRAY                    | BsonArray       |
+| MAP                      | BsonDocument    |
+| ROW                      | BsonDocument    |
 
 # Build from source
 

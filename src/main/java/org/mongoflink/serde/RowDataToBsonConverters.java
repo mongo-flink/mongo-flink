@@ -8,6 +8,7 @@ import org.bson.types.Decimal128;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 
@@ -52,7 +53,7 @@ public class RowDataToBsonConverters implements Serializable {
             case TIMESTAMP_WITHOUT_TIME_ZONE:
                 return this.createTimestampConverter();
             case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
-                return this.createTimestampWithLocalZone();
+                return this.createTimestampWithLocalZoneConverter();
             case DECIMAL:
                 return this.createDecimalConverter();
             case ARRAY:
@@ -83,11 +84,7 @@ public class RowDataToBsonConverters implements Serializable {
     }
 
     private RowDataToBsonConverter createDateConverter() {
-        return (reuse, value) -> {
-            int days = (Integer) value;
-            int epochMillis = days * 24 * 60 * 60 * 1000;
-            return new BsonInt64(epochMillis);
-        };
+        return (reuse, value) -> new BsonInt32((int) value);
     }
 
     private RowDataToBsonConverter createTimestampConverter() {
@@ -97,12 +94,13 @@ public class RowDataToBsonConverters implements Serializable {
         };
     }
 
-    private RowDataToBsonConverter createTimestampWithLocalZone() {
+    private RowDataToBsonConverter createTimestampWithLocalZoneConverter() {
         return (reuse, value) -> {
             TimestampData timestampWithLocalZone = (TimestampData) value;
-            return new BsonDateTime(
-                    timestampWithLocalZone.toInstant().atOffset(ZoneOffset.UTC).toEpochSecond()
-                            * 1_000L);
+            // adjust to local zone by add the zone offset
+            long epochMillis = timestampWithLocalZone.toInstant().getNano() / 1_000L;
+            int offsetSeconds = ZoneOffset.of(ZoneId.systemDefault().getId()).getTotalSeconds();
+            return new BsonDateTime(epochMillis + offsetSeconds * 1000L);
         };
     }
 
