@@ -11,6 +11,8 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 
 import com.google.common.collect.Lists;
+import org.bson.BsonDocument;
+import org.bson.BsonString;
 import org.bson.Document;
 import org.junit.Test;
 
@@ -51,6 +53,10 @@ public class MongoTableUpsertSinkTest extends MongoSinkTestBase {
             // generate list field
             List<String> hobbies = new ArrayList<>(3);
             hobbies.add(HOBBIES.get(i % HOBBIES.size()));
+            // generate object field
+            BsonDocument tags = new BsonDocument();
+            tags.put("k1", new BsonString("v1"));
+            tags.put("k2", new BsonString("v2"));
             sourceDocs.add(
                     new Document()
                             .append("user_id", 10) // pin user_id for duplication
@@ -59,7 +65,8 @@ public class MongoTableUpsertSinkTest extends MongoSinkTestBase {
                             .append("grade", "grade" + (i + 10))
                             .append("score", (i + 10) / 1.5)
                             .append("vip", (i + 10) % 2 == 0)
-                            .append("hobby", (i + 10) % 10 == 0 ? "football" : null));
+                            .append("hobby", hobbies)
+                            .append("tags", tags));
         }
         clientProviderSource.getDefaultCollection().insertMany(sourceDocs);
 
@@ -72,7 +79,8 @@ public class MongoTableUpsertSinkTest extends MongoSinkTestBase {
                         + "    grade string,"
                         + "    score double,"
                         + "    vip boolean,"
-                        + "    hobby string"
+                        + "    hobby array<string>,"
+                        + "    tags map<string, string>"
                         + ") with ("
                         + "    'connector'='mongo',"
                         + "    'connect_string' = '"
@@ -95,7 +103,8 @@ public class MongoTableUpsertSinkTest extends MongoSinkTestBase {
                         + "    grade string,"
                         + "    score double,"
                         + "    vip boolean,"
-                        + "    hobby string,"
+                        + "    hobby array<string>,"
+                        + "    tags map<string, string>,"
                         + "    PRIMARY key(user_id) NOT ENFORCED"
                         + ") with ("
                         + "    'connector'='mongo',"
