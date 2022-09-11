@@ -57,6 +57,10 @@ public class MongoTableUpsertSinkTest extends MongoSinkTestBase {
             BsonDocument tags = new BsonDocument();
             tags.put("k1", new BsonString("v1"));
             tags.put("k2", new BsonString("v2"));
+            // generate row filed
+            Document row = new Document();
+            row.put("k1", 1);
+            row.put("k2", "v2");
             sourceDocs.add(
                     new Document()
                             .append("user_id", 10) // pin user_id for duplication
@@ -66,7 +70,8 @@ public class MongoTableUpsertSinkTest extends MongoSinkTestBase {
                             .append("score", (i + 10) / 1.5)
                             .append("vip", (i + 10) % 2 == 0)
                             .append("hobby", hobbies)
-                            .append("tags", tags));
+                            .append("tags", tags)
+                            .append("my_row", row));
         }
         clientProviderSource.getDefaultCollection().insertMany(sourceDocs);
 
@@ -80,7 +85,8 @@ public class MongoTableUpsertSinkTest extends MongoSinkTestBase {
                         + "    score double,"
                         + "    vip boolean,"
                         + "    hobby array<string>,"
-                        + "    tags map<string, string>"
+                        + "    tags map<string, string>,"
+                        + "    my_row row<k1 int, k2 string>"
                         + ") with ("
                         + "    'connector'='mongo',"
                         + "    'connect_string' = '"
@@ -105,6 +111,7 @@ public class MongoTableUpsertSinkTest extends MongoSinkTestBase {
                         + "    vip boolean,"
                         + "    hobby array<string>,"
                         + "    tags map<string, string>,"
+                        + "    my_row row<k1 int, k2 string>,"
                         + "    PRIMARY key(user_id) NOT ENFORCED"
                         + ") with ("
                         + "    'connector'='mongo',"

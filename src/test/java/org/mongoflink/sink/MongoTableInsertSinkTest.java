@@ -50,6 +50,10 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
             Document tags = new Document();
             tags.put("k1", "v1");
             tags.put("k2", "v2");
+            // generate row filed
+            Document row = new Document();
+            row.put("k1", 1);
+            row.put("k2", "v2");
             sourceDocs.add(
                     new Document()
                             .append("user_id", (long) i)
@@ -63,7 +67,8 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                                     "last_login_timestamp",
                                     new BsonDateTime(System.currentTimeMillis()))
                             .append("hobbies", hobbies)
-                            .append("tags", tags));
+                            .append("tags", tags)
+                            .append("my_row", row));
         }
         clientProviderSource.getDefaultCollection().insertMany(sourceDocs);
 
@@ -79,7 +84,8 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                         + "    last_login_date date,"
                         + "    last_login_timestamp timestamp,"
                         + "    hobbies array<string>,"
-                        + "    tags map<string, string>"
+                        + "    tags map<string, string>,"
+                        + "    my_row row<k1 int, k2 string>"
                         + ") with ("
                         + "    'connector'='mongo',"
                         + "    'connect_string' = '"
@@ -104,7 +110,8 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
                         + "    last_login_date date,"
                         + "    last_login_timestamp timestamp,"
                         + "    hobbies array<string>,"
-                        + "    tags map<string, string>"
+                        + "    tags map<string, string>,"
+                        + "    my_row row<k1 int, k2 string>"
                         + ") with ("
                         + "    'connector'='mongo',"
                         + "    'connect_string' = '"
