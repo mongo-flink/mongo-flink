@@ -20,7 +20,7 @@ For Maven users, add the following dependency in your project's pom.xml.
 <dependency>
 	<groupId>org.mongoflink</groupId>
 	<artifactId>mongo-flink</artifactId>
-	<version>0.3</version>
+	<version>1.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -31,10 +31,11 @@ in your project.
 With regard to MongoDB compatibility, please refer to [MongoDB's docs about the Java driver](https://www.mongodb.com/docs/drivers/java/sync/current/compatibility/).
 
 | version | flink version | mongodb driver version |
-| ------- | ------------- |------------------------|
-| 0.1 | 1.13.x | 4.2.x                  |
-| 0.2 | 1.14.x | 4.4.x                  |
-| 0.3 | 1.15.x | 4.4.x                  |
+|---------| ------------- |------------------------|
+| 0.1     | 1.13.x | 4.2.x                  |
+| 0.2     | 1.14.x | 4.4.x                  |
+| 0.3     | 1.15.x | 4.4.x                  |
+| 1.0.x   | 1.15.x | 4.7.x                  |
 
 In case there's no version that fits your need, it's recommended to build your own one. See [Build from source]
 section below.

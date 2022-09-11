@@ -51,7 +51,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <flink.version>1.15.0</flink.version>
         <scala.version>2.12</scala.version>
-        <mongo.version>4.4.1</mongo.version>
+        <mongo.driver.version>4.7.1</mongo.driver.version>
         <jackson.version>2.13.3</jackson.version>
     </properties>
 
@@ -106,19 +106,19 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
-            <version>${mongo.version}</version>
+            <version>${mongo.driver.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-core</artifactId>
-            <version>${mongo.version}</version>
+            <version>${mongo.driver.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>bson</artifactId>
-            <version>${mongo.version}</version>
+            <version>${mongo.driver.version}</version>
         </dependency>
 
         <dependency>
