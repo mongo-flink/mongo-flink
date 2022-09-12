@@ -264,14 +264,18 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
         if (force || size >= maxSize) {
             DocumentBulk bulk = new DocumentBulk(maxSize);
-            for (int i = 0; i < size; i++) {
-                if (bulk.size() >= maxSize) {
-                    pendingBulks.add(bulk);
-                    bulk = new DocumentBulk(maxSize);
+            try {
+                for (int i = 0; i < size; i++) {
+                    if (bulk.size() >= maxSize) {
+                        pendingBulks.put(bulk);
+                        bulk = new DocumentBulk(maxSize);
+                    }
+                    bulk.add(currentBulk.poll());
                 }
-                bulk.add(currentBulk.poll());
+                pendingBulks.put(bulk);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Interrupted when blocking waiting for writer buffers.");
             }
-            pendingBulks.add(bulk);
         }
     }
 
