@@ -36,12 +36,14 @@
 
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+            <id>decodable-mvn-snapshots-local</id>
+            <name>decodable-mvn-snapshots-local</name>
+            <url>https://decodable-671293015970.d.codeartifact.us-west-2.amazonaws.com/maven/decodable-mvn-snapshots-local/</url>
         </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>decodable-mvn-releases-local</id>
+            <name>decodable-mvn-releases-local</name>
+            <url>https://decodable-671293015970.d.codeartifact.us-west-2.amazonaws.com/maven/decodable-mvn-releases-local/</url>
         </repository>
     </distributionManagement>
 
@@ -311,6 +313,30 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>decodable-mvn-releases-local</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>decodable-mvn-releases-local</id>
+                    <url>https://decodable-671293015970.d.codeartifact.us-west-2.amazonaws.com/maven/decodable-mvn-releases-local/</url>
+                </repository>
+            </repositories>
+        </profile>
+        <profile>
+            <id>decodable-mvn-snapshots-local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>decodable-mvn-snapshots-local</id>
+                    <url>https://decodable-671293015970.d.codeartifact.us-west-2.amazonaws.com/maven/decodable-mvn-snapshots-local/</url>
+                </repository>
+            </repositories>
         </profile>
     </profiles>
 </project>
