@@ -4,10 +4,7 @@ import org.mongoflink.internal.connection.MongoClientProvider;
 
 import org.apache.flink.api.connector.sink.Committer;
 
-import com.mongodb.ReadConcern;
-import com.mongodb.ReadPreference;
-import com.mongodb.TransactionOptions;
-import com.mongodb.WriteConcern;
+import com.mongodb.*;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -46,6 +43,8 @@ public class MongoCommitter implements Committer<DocumentBulk> {
 
     private static final long TRANSACTION_TIMEOUT_MS = 60_000L;
 
+    private static final int DUPLICATE_KEY_ERROR_CODE = 11000;
+
     public MongoCommitter(MongoClientProvider clientProvider) {
         this(clientProvider, false, new String[] {});
     }
@@ -62,6 +61,7 @@ public class MongoCommitter implements Committer<DocumentBulk> {
     @Override
     public List<DocumentBulk> commit(List<DocumentBulk> committables) throws IOException {
         List<DocumentBulk> failedBulk = new ArrayList<>();
+
         for (DocumentBulk bulk : committables) {
             if (bulk.getDocuments().size() > 0) {
                 CommittableTransaction transaction;
@@ -74,15 +74,46 @@ public class MongoCommitter implements Committer<DocumentBulk> {
                 }
                 try {
                     int insertedDocs = session.withTransaction(transaction, txnOptions);
+
                     LOGGER.info(
                             "Inserted {} documents into collection {}.",
                             insertedDocs,
                             collection.getNamespace());
+                } catch (MongoBulkWriteException e) {
+                    // for insertions, ignore duplicate key errors in case txn was already committed
+                    // but client was not aware of it.
+
+                    // NOTE: upserts are idempotent in mongo, so no exceptions need to be caught for
+                    // redundant upserts.
+                    for (WriteError err : e.getWriteErrors()) {
+                        if (err.getCode() != DUPLICATE_KEY_ERROR_CODE) {
+                            // for now, simply requeue records when a write error
+                            // other than duplicate key is encountered. In some cases, this may
+                            // result in exception looping, but should not cause data loss. This
+                            // will slow down the sink though.
+                            // TODO: handle other write errors as necessary
+                            LOGGER.error(
+                                    String.format(
+                                            "Mongo write error – requeueing %d records",
+                                            bulk.size()),
+                                    e);
+                            failedBulk.add(bulk);
+                            break;
+                        }
+                    }
+                    if (failedBulk.isEmpty()) {
+                        LOGGER.warn("Ignoring duplicate records");
+                    }
                 } catch (Exception e) {
                     // save to a new list that would be retried
-                    LOGGER.error("Failed to commit with Mongo transaction.", e);
+                    LOGGER.error(
+                            String.format(
+                                    "Failed to commit with Mongo transaction – requeueing %d records",
+                                    bulk.size()),
+                            e);
                     failedBulk.add(bulk);
                 }
+                // TODO: [DE-3303] if needed, catch duplicate delete errors
             }
         }
         return failedBulk;
