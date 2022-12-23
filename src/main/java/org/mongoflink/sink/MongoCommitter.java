@@ -97,8 +97,10 @@ public class MongoCommitter implements Committer<DocumentBulk> {
                     // ignore duplicate key errors in case txn was already committed but client was not aware of it
                     for (WriteError err : e.getWriteErrors()) {
                         if (err.getCode() != DUPLICATE_KEY_ERROR_CODE) {
-                            throw e;
+                            LOGGER.error("Failed to commit with Mongo transaction.", e);
+                            failedBulk.add(bulk);
                         }
+                        // TODO: catch other write errors
                     }
                     LOGGER.warn("Ignoring duplicate records");
                 } catch (Exception e) {
