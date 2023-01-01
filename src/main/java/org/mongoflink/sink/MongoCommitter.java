@@ -87,10 +87,17 @@ public class MongoCommitter implements Committer<DocumentBulk> {
                     // redundant upserts
                     for (WriteError err : e.getWriteErrors()) {
                         if (err.getCode() != DUPLICATE_KEY_ERROR_CODE) {
-                            LOGGER.error("Failed to commit with Mongo transaction.", e);
+                            // for now, simply requeueing records when a write error
+                            // other than duplicate key is encountered. In some cases, this may
+                            // result in annoying error looping, but should not cause data loss.
+                            // TODO: handle specific write errors as necessary
+                            LOGGER.error(
+                                    String.format(
+                                            "Mongo write error – requeueing %d records",
+                                            bulk.size()),
+                                    e);
                             failedBulk.add(bulk);
-                        } else {
-                            LOGGER.error(String.format("write error here: %s", err.getMessage()));
+                            break;
                         }
                     }
                     LOGGER.warn("Ignoring duplicate records");
