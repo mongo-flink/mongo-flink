@@ -67,7 +67,7 @@ public class MongoCommitter implements Committer<DocumentBulk> {
                 CommittableTransaction transaction;
                 if (enableUpsert) {
                     transaction =
-                            new CommittableUpsertTransaction(
+                            new CommittableCdcTransaction(
                                     collection, bulk.getDocuments(), upsertKeys);
                 } else {
                     transaction = new CommittableTransaction(collection, bulk.getDocuments());
@@ -83,8 +83,8 @@ public class MongoCommitter implements Committer<DocumentBulk> {
                     // for insertions, ignore duplicate key errors in case txn was already committed
                     // but client was not aware of it.
 
-                    // NOTE: upserts are idempotent in mongo, so no exceptions need to be caught for
-                    // redundant upserts.
+                    // NOTE: upserts and deletes are idempotent in mongo, so no specific exceptions
+                    // need to be caught/ignored for them.
                     for (WriteError err : e.getWriteErrors()) {
                         if (err.getCode() != DUPLICATE_KEY_ERROR_CODE) {
                             // for now, simply requeue records when a write error
@@ -113,7 +113,6 @@ public class MongoCommitter implements Committer<DocumentBulk> {
                             e);
                     failedBulk.add(bulk);
                 }
-                // TODO: [DE-3303] if needed, catch duplicate delete errors
             }
         }
         return failedBulk;
