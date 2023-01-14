@@ -261,20 +261,41 @@ public class MongoBulkWriter<IN> implements SinkWriter<IN, DocumentBulk, Documen
 
     private synchronized void rollBulkIfNeeded(boolean force) {
         int size = currentBulk.size();
-
         if (force || size >= maxSize) {
             DocumentBulk bulk = new DocumentBulk(maxSize);
-            try {
-                for (int i = 0; i < size; i++) {
-                    if (bulk.size() >= maxSize) {
-                        pendingBulks.put(bulk);
-                        bulk = new DocumentBulk(maxSize);
-                    }
-                    bulk.add(currentBulk.poll());
+            for (int i = 0; i < size; i++) {
+                if (bulk.size() >= maxSize) {
+                    enqueuePendingBulk(bulk);
+                    bulk = new DocumentBulk(maxSize);
                 }
-                pendingBulks.put(bulk);
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Interrupted when blocking waiting for writer buffers.");
+                bulk.add(currentBulk.poll());
+            }
+            enqueuePendingBulk(bulk);
+        }
+    }
+
+    private synchronized void enqueuePendingBulk(DocumentBulk bulk) {
+        boolean isEnqueued = pendingBulks.offer(bulk);
+        if (!isEnqueued) {
+            // pending queue is full, thus block processing if it's transactional sink,
+            // or else trigger a flush
+            if (options.getFlushOnCheckpoint()) {
+                do {
+                    try {
+                        Thread.sleep(1_000L);
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
+                    isEnqueued = pendingBulks.offer(bulk);
+                } while (!isEnqueued || closed);
+            } else {
+                flush();
+                isEnqueued = pendingBulks.offer(bulk);
+                if (!isEnqueued) {
+                    throw new IllegalStateException(
+                            "Pending queue still full after flushes, this is a bug, "
+                                    + "please file an issue.");
+                }
             }
         }
     }
