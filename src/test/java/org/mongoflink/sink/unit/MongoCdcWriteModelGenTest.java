@@ -12,12 +12,12 @@ import org.bson.Document;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
-
 public class MongoCdcWriteModelGenTest {
-    /* unit test to ensure that the correct WriteModel's are generated for a given set of CdcDocuments to be sent via a Mongo transaction
+    /*
+     * unit test to ensure that the correct WriteModel's are generated for a given set of CdcDocuments to be sent via a Mongo transaction
      */
 
     private static final String json =
@@ -37,7 +37,7 @@ public class MongoCdcWriteModelGenTest {
     }
 
     private List<Document> getDocuments() {
-        return List.of(
+        return Arrays.asList(
                 new CdcDocument(mockDocument),
                 new CdcDocument(mockDocument),
                 getDeleteDoc(),
@@ -51,20 +51,17 @@ public class MongoCdcWriteModelGenTest {
     @Test
     public void testWriteModelGen() {
         List<Document> testDocs = getDocuments();
-
+        String[] upsertKeys = new String[] {"name"};
         List<WriteModel<Document>> writes =
-                CommittableCdcTransaction.getWrites(
-                        getDocuments(),
-                        List.of("name").toArray(new String[0]),
-                        new UpdateOptions());
+                CommittableCdcTransaction.getWrites(testDocs, upsertKeys, new UpdateOptions());
 
         Assert.assertEquals(testDocs.size(), writes.size());
 
         for (int pos = 0; pos < writes.size(); pos++) {
             if (((CdcDocument) testDocs.get(pos)).isDelete()) {
-                Assert.assertThat(writes.get(pos), instanceOf(DeleteOneModel.class));
+                Assert.assertTrue(writes.get(pos) instanceof DeleteOneModel);
             } else {
-                Assert.assertThat(writes.get(pos), instanceOf(UpdateOneModel.class));
+                Assert.assertTrue(writes.get(pos) instanceof UpdateOneModel);
             }
         }
     }

@@ -177,10 +177,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>9</source>
-                        <target>9</target>
-                    </configuration>
+                    <version>3.8.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>

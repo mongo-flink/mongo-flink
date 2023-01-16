@@ -2,7 +2,7 @@ package org.mongoflink.bson;
 
 import org.bson.Document;
 
-import java.util.stream.Collectors;
+import java.util.HashMap;
 
 /**
  * CdcDocument is a bson Document with a delete flag used to indicate if a given Document in a
@@ -15,7 +15,10 @@ public class CdcDocument extends Document {
         // Note: field ordering within a document is not preserved when instantiating a CdcDocument
         super(
                 document.entrySet().stream()
-                        .collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+                        .collect(
+                                HashMap::new,
+                                (m, v) -> m.put(v.getKey(), v.getValue()),
+                                HashMap::putAll));
     }
 
     public void setDelete() {
