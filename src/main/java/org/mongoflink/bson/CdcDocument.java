@@ -12,6 +12,7 @@ public class CdcDocument extends Document {
     private boolean isDelete;
 
     public CdcDocument(Document document) {
+        // Note: field ordering within a document is not preserved when instantiating a CdcDocument
         super(
                 document.entrySet().stream()
                         .collect(Collectors.toMap(Entry::getKey, Entry::getValue)));

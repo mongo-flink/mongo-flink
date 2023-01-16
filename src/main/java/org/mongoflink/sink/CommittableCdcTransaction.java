@@ -32,6 +32,15 @@ public class CommittableCdcTransaction extends CommittableTransaction {
 
     @Override
     public Integer execute() {
+        BulkWriteResult bulkWriteResult =
+                collection.bulkWrite(
+                        getWrites(bufferedDocuments, upsertKeys, updateOptions), bulkWriteOptions);
+
+        return bulkWriteResult.getUpserts().size() + bulkWriteResult.getInsertedCount();
+    }
+
+    public static List<WriteModel<Document>> getWrites(
+            List<Document> bufferedDocuments, String[] upsertKeys, UpdateOptions updateOptions) {
         List<WriteModel<Document>> writes =
                 new ArrayList<>(); // interleave upserts and deletes to preserve order of operations
         for (Document document : bufferedDocuments) {
@@ -52,9 +61,6 @@ public class CommittableCdcTransaction extends CommittableTransaction {
             }
             writes.add(model);
         }
-
-        BulkWriteResult bulkWriteResult = collection.bulkWrite(writes, bulkWriteOptions);
-
-        return bulkWriteResult.getUpserts().size() + bulkWriteResult.getInsertedCount();
+        return writes;
     }
 }

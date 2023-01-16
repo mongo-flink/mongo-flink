@@ -24,6 +24,9 @@ public class DocumentBulkSerializerTest {
         origin.add(document);
         DocumentBulkSerializer serializer = DocumentBulkSerializer.INSTANCE;
         byte[] bytes = serializer.serialize(origin);
-        assertEquals(origin, serializer.deserialize(serializer.getVersion(), bytes));
+        DocumentBulk deserBulk = serializer.deserialize(serializer.getVersion(), bytes);
+        assertEquals(
+                origin.getDocuments().get(0).entrySet(),
+                deserBulk.getDocuments().get(0).entrySet());
     }
 }
