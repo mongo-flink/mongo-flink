@@ -1,13 +1,15 @@
 package org.mongoflink.serde;
 
+import org.mongoflink.bson.CdcDocument;
+
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.flink.types.RowKind;
 
 import org.bson.BsonDocument;
 import org.bson.BsonDocumentReader;
-import org.bson.Document;
+import org.bson.codecs.CdcDocumentCodec;
 import org.bson.codecs.DecoderContext;
-import org.bson.codecs.DocumentCodec;
 
 /** convert rowdata to document. */
 public class RowDataDocumentSerializer implements DocumentSerializer<RowData> {
@@ -21,15 +23,20 @@ public class RowDataDocumentSerializer implements DocumentSerializer<RowData> {
     }
 
     @Override
-    public Document serialize(RowData row) {
+    public CdcDocument serialize(RowData row) {
         if (node == null) {
             node = new BsonDocument();
         }
         try {
             bsonConverter.convert(node, row);
-            DocumentCodec codec = new DocumentCodec();
+            CdcDocumentCodec codec = new CdcDocumentCodec();
             DecoderContext decoderContext = DecoderContext.builder().build();
-            return codec.decode(new BsonDocumentReader(node), decoderContext);
+            CdcDocument doc =
+                    (CdcDocument) codec.decode(new BsonDocumentReader(node), decoderContext);
+            if (row.getRowKind().equals(RowKind.DELETE)) {
+                doc.setDelete();
+            }
+            return doc;
         } catch (Exception e) {
             throw new RuntimeException("can not serialize row '" + row + "'. ", e);
         }

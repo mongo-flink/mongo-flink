@@ -1,5 +1,6 @@
 package org.mongoflink.sink;
 
+import org.mongoflink.bson.CdcDocument;
 import org.mongoflink.internal.connection.MongoClientProvider;
 import org.mongoflink.internal.connection.MongoColloctionProviders;
 
@@ -147,9 +148,17 @@ public class MongoTableInsertSinkTest extends MongoSinkTestBase {
             }
         }
 
+        // convert Document's to CdcDocument's to normalize field ordering
+        List<CdcDocument> cdcSourceDocs =
+                sourceDocs.stream()
+                        .collect(
+                                ArrayList<CdcDocument>::new,
+                                (u, v) -> u.add(new CdcDocument(v)),
+                                ArrayList<CdcDocument>::addAll);
+
         // compare in json format because float point numbers would not equal
         assertArrayEquals(
-                sourceDocs.stream().peek(d -> d.remove("_id")).map(Document::toJson).toArray(),
+                cdcSourceDocs.stream().peek(d -> d.remove("_id")).map(Document::toJson).toArray(),
                 resultDocs.stream().map(Document::toJson).toArray());
     }
 

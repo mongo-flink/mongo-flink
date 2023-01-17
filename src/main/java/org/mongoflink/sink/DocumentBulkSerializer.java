@@ -8,9 +8,9 @@ import org.apache.flink.core.memory.DataOutputSerializer;
 import org.bson.BsonBinaryReader;
 import org.bson.BsonBinaryWriter;
 import org.bson.Document;
+import org.bson.codecs.CdcDocumentCodec;
 import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
-import org.bson.codecs.DocumentCodec;
 import org.bson.codecs.EncoderContext;
 import org.bson.io.BasicOutputBuffer;
 
@@ -28,7 +28,7 @@ public class DocumentBulkSerializer
 
     private static int version = 1;
 
-    private static Codec<Document> DOCUMENT_CODEC = new DocumentCodec();
+    private static Codec<Document> DOCUMENT_CODEC = new CdcDocumentCodec();
 
     public static DocumentBulkSerializer INSTANCE = new DocumentBulkSerializer();
 
